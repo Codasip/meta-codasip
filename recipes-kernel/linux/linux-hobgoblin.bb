@@ -26,6 +26,18 @@ SRC_URI = " \
 LINUX_VERSION ?= "6.5.0"
 LINUX_VERSION_EXTENSION:append = "-hobgoblin"
 
+KCONFIG_MODE="--alldefconfig"
+
 KBUILD_DEFCONFIG = "codasip-a70x-hobgoblin_defconfig"
 
 COMPATIBLE_MACHINE = "(hobgoblin)"
+
+TOOLCHAIN:forcevariable = "clang"
+DEPENDS:append:toolchain-clang = " clang-cross-${TARGET_ARCH}"
+KERNEL_CC:toolchain-clang = "${CCACHE}clang ${HOST_CC_KERNEL_ARCH} ${DEBUG_PREFIX_MAP} -fdebug-prefix-map=${STAGING_KERNEL_DIR}=${KERNEL_SRC_PATH}"
+KERNEL_LD:toolchain-clang = "${CCACHE}ld.lld"
+KERNEL_AR:toolchain-clang = "${CCACHE}llvm-ar"
+
+# Keep kernel_configcheck task happy when it calls symbol_why.py
+CLANG_FLAGS:toolchain-clang = "-fintegrated-as"
+export CLANG_FLAGS
