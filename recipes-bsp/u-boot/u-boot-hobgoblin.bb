@@ -15,6 +15,7 @@ BRANCH = "hobgoblin"
 
 SRC_URI = " \
     git://git@gitlab.codasip.com/cheri/software/cherilinux/u-boot.git;protocol=ssh;branch=${BRANCH} \
+    file://boot.scr \
 "
 DEPENDS:append = " u-boot-tools-native"
 
@@ -22,6 +23,14 @@ COMPATIBLE_MACHINE = "hobgoblin"
 
 TOOLCHAIN = "gcc"
 
+do_configure:prepend () {
+    mkimage -O linux -T script -C none -n "U-Boot boot script" \
+	    -d ${WORKDIR}/boot.scr ${WORKDIR}/boot.scr.uimg
+}
+
+do_deploy:append() {
+    install -m 644 ${WORKDIR}/boot.scr.uimg ${DEPLOYDIR}/
+}
 
 # U-boot sets O=... which needs it to build outside of S
 B = "${WORKDIR}/build"

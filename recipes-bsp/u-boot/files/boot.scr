@@ -1,0 +1,3 @@
+fatload mmc 0:1 0x82000000 Image.gz
+setenv bootargs earlycon console=ttyS0,115200 root=/dev/mmcblk0p2
+booti 0x82000000 - ${fdtcontroladdr}
