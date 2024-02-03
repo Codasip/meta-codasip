@@ -13,7 +13,8 @@ PV = "1.0+git${SRCPV}"
 
 BRANCH = "hobgoblin"
 
-SRC_URI = "git://gitlab.codasip.com/cheri/software/cherilinux/u-boot.git;protocol=https;branch=${BRANCH};user=git:glpat-q13UJSPzAvyxdPWHymuy \
+SRC_URI = " \
+    git://git@gitlab.codasip.com/cheri/software/cherilinux/u-boot.git;protocol=ssh;branch=${BRANCH} \
 "
 DEPENDS:append = " u-boot-tools-native"
 
