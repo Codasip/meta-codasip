@@ -1,0 +1,10 @@
+# Device Tree
+/a70x-hobgoblin.dtb	0x87000000 FDT
+# OpenSBI
+/fw_dynamic.bin		0x80000000 BOOT
+# U-Boot
+/u-boot.bin		0x80200000 NXT
+# Linux
+# /Image.gz		0x81000000
+# Ramdisk
+# /rootfs.img		0x82000000
