@@ -37,6 +37,7 @@ export BASH_SOURCE="poky/oe-init-build-env"
 # add the missing layers
 echo "Adding layers"
 bitbake-layers add-layer ../meta-codasip
+bitbake-layers add-layer ../meta-clang
 
 # fix the configuration
 echo "Creating auto.conf"
@@ -56,6 +57,7 @@ USER_CLASSES ?= "buildstats buildhistory buildstats-summary"
 INHERIT += "uninative"
 DISTRO_FEATURES = "ipv4 sysvinit"
 IMAGE_FSTYPES="ext4"
+TOOLCHAIN = "clang"
 EOF
 
 #echo "Creating initramfs.conf"
