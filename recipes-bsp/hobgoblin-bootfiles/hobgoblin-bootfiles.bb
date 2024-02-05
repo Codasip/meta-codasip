@@ -11,10 +11,12 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI = " \
 	file://config.txt \
+	file://fsbl_rom.xexe \
 "
 
 do_deploy() {
 	cp ${WORKDIR}/config.txt ${DEPLOYDIR}/
+	cp ${WORKDIR}/fsbl_rom.xexe ${DEPLOYDIR}/
 }
 
 addtask deploy after do_compile
