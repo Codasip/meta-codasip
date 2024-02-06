@@ -56,7 +56,7 @@ USER_CLASSES ?= "buildstats buildhistory buildstats-summary"
 
 INHERIT += "uninative"
 DISTRO_FEATURES = "ipv4 sysvinit"
-IMAGE_FSTYPES="ext4"
+IMAGE_FSTYPES="ext4 wic"
 TOOLCHAIN = "clang"
 EOF
 
