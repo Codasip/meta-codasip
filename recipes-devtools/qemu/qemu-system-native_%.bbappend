@@ -22,7 +22,7 @@ do_meson_fetch() {
     pwd
     meson subprojects download
 }
-do_meson_fetch[deptask] = "do_populate_sysroot"
+do_meson_fetch[depends] = "meson-native:do_populate_sysroot"
 addtask meson_fetch after do_unpack before do_patch
 
 S = "${WORKDIR}/git"
