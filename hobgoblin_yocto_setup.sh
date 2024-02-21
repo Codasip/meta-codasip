@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIR="build"
+DIR="${1:-build}"
 MACHINE="hobgoblin"
 CONFFILE="conf/auto.conf"
 BITBAKEIMAGE="core-image-minimal"
@@ -12,8 +12,6 @@ BITBAKEIMAGE="core-image-minimal"
 # make sure sstate is there
 #echo "Creating sstate directory"
 #mkdir -p ~/sstate/$MACHINE
-
-echo $(pwd)
 
 # Reconfigure dash on debian-like systems
 which aptitude > /dev/null 2>&1
@@ -27,8 +25,10 @@ elif [ "${0##*/}" = "dash" ]; then
 fi
 # bootstrap OE
 echo "Init OE"
-export BASH_SOURCE="poky/oe-init-build-env"
-. ./poky/oe-init-build-env $DIR
+base=$(dirname -- $(dirname -- $(readlink -f -- "$0" )))
+poky_init=$base/poky/oe-init-build-env
+export BASH_SOURCE=$poky_init
+. $poky_init $DIR
 
 # Symlink the cache
 #echo "Setup symlink for sstate"
@@ -36,8 +36,8 @@ export BASH_SOURCE="poky/oe-init-build-env"
 
 # add the missing layers
 echo "Adding layers"
-bitbake-layers add-layer ../meta-codasip
-bitbake-layers add-layer ../meta-clang
+bitbake-layers add-layer ${base}/meta-codasip
+bitbake-layers add-layer ${base}/meta-clang
 
 # fix the configuration
 echo "Creating auto.conf"
@@ -59,16 +59,6 @@ DISTRO_FEATURES = "ipv4 sysvinit"
 IMAGE_FSTYPES="ext4 wic"
 TOOLCHAIN = "clang"
 EOF
-
-#echo "Creating initramfs.conf"
-#
-#if [ -e $INITRAMFS_CONF ]; then
-#    rm -rf $INITRAMFS_CONF
-#fi
-#cat <<EOF > $INITRAMFS_CONF
-#INITRAMFS_IMAGE = "mpfs-core-image-base"
-#EOF
-
 
 echo "To build an image run"
 echo "---------------------------------------------------"
