@@ -11,13 +11,17 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI = " \
 	file://config.txt \
-	file://fsbl_rom.xexe \
+	${@bb.utils.contains('BBMULTICONFIG', 'baremetal', '', 'file://fsbl_rom.xexe', d)} \
 "
 
 do_deploy() {
 	cp ${WORKDIR}/config.txt ${DEPLOYDIR}/
-	cp ${WORKDIR}/fsbl_rom.xexe ${DEPLOYDIR}/
+	fsbldir="${@bb.utils.contains('BBMULTICONFIG', 'baremetal', '${BAREMETAL_DEPLOY_DIR}', '${WORKDIR}', d)}"
+	cp $fsbldir/fsbl_rom.xexe ${DEPLOYDIR}/
 }
 
 addtask deploy after do_compile
 do_deploy[dirs] += "${DEPLOYDIR}/"
+
+FSBL_MCDEPENDS = "${@bb.utils.contains('BBMULTICONFIG', 'baremetal', 'mc::baremetal:baremetal-sdk:do_deploy', '', d)}"
+do_fetch[mcdepends] += "${FSBL_MCDEPENDS}"
