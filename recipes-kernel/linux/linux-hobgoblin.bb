@@ -17,10 +17,9 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 
 SRCREV = "${AUTOREV}"
 PV = "6.5+git${SRCPV}"
-BRANCH = "hobgoblin"
 
 SRC_URI = " \
-    git://git@gitlab.codasip.com/cheri/software/cherilinux/linux.git;protocol=ssh;branch=${BRANCH} \
+    git://${CODASIP_GIT_REPO}/linux;protocol=${CODASIP_GIT_PROTOCOL};branch=${CODASIP_GIT_BRANCH} \
 "
 
 LINUX_VERSION ?= "6.5.0"

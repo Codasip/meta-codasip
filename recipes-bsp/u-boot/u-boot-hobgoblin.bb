@@ -11,10 +11,8 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 SRCREV = "${AUTOREV}"
 PV = "1.0+git${SRCPV}"
 
-BRANCH = "hobgoblin"
-
 SRC_URI = " \
-    git://git@gitlab.codasip.com/cheri/software/cherilinux/u-boot.git;protocol=ssh;branch=${BRANCH} \
+    git://${CODASIP_GIT_REPO}/u-boot;protocol=${CODASIP_GIT_PROTOCOL};branch=${CODASIP_GIT_BRANCH} \
     file://boot.scr \
 "
 DEPENDS:append = " u-boot-tools-native"
