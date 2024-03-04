@@ -1,5 +1,6 @@
 DESCRIPTION = "Files needed to boot on the Hobgoblin platform."
 LICENSE = "Codasip"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=2faad86a22b25ebf61a8d9b1ed916ada"
 LICENSE_FLAGS = "commercial"
 
 inherit nopackages deploy
@@ -9,8 +10,11 @@ COMPATIBLE_MACHINE = "hobgoblin"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
+S = "${WORKDIR}"
+
 SRC_URI = " \
 	file://config.txt \
+	file://LICENSE \
 	${@bb.utils.contains('BBMULTICONFIG', 'baremetal', '', 'file://fsbl_rom.xexe', d)} \
 "
 
