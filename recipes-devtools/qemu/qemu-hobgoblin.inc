@@ -22,5 +22,6 @@ do_meson_fetch() {
 }
 do_meson_fetch[depends] = "meson-native:do_populate_sysroot"
 addtask meson_fetch after do_unpack before do_patch
+do_meson_fetch[network] = "1"
 
 S = "${WORKDIR}/git"
