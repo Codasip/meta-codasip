@@ -57,6 +57,7 @@ USER_CLASSES ?= "buildstats buildhistory buildstats-summary"
 INHERIT += "uninative"
 DISTRO_FEATURES = "ipv4 systemd usrmerge"
 IMAGE_FSTYPES="ext4 wic"
+IMAGE_NAME_SUFFIX=".sdcard"
 TOOLCHAIN = "clang"
 EOF
 
