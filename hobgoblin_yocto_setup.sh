@@ -55,7 +55,7 @@ USER_CLASSES ?= "buildstats buildhistory buildstats-summary"
 #require conf/distro/include/security_flags.inc
 
 INHERIT += "uninative"
-DISTRO_FEATURES = "ipv4 sysvinit"
+DISTRO_FEATURES = "ipv4 systemd usrmerge"
 IMAGE_FSTYPES="ext4 wic"
 TOOLCHAIN = "clang"
 EOF
