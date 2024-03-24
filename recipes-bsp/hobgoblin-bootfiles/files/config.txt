@@ -1,5 +1,5 @@
 # Device Tree
-/a70x-hobgoblin.dtb	0x87000000 FDT
+/a70x-hobgoblin-etherlite.dtb	0x87000000 FDT
 # OpenSBI
 /fw_dynamic.bin		0x80000000 BOOT
 # U-Boot
