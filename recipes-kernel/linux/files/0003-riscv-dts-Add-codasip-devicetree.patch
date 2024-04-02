@@ -1,0 +1,25 @@
+From 8568845228b16f3c362bd36c999f1113537bd0c4 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Thu, 18 Jan 2024 11:43:11 +0000
+Subject: [PATCH 03/11] riscv: dts: Add codasip devicetree
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ arch/riscv/boot/dts/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/riscv/boot/dts/Makefile b/arch/riscv/boot/dts/Makefile
+index f60a280abb15..cc6f2b0aaae4 100644
+--- a/arch/riscv/boot/dts/Makefile
++++ b/arch/riscv/boot/dts/Makefile
+@@ -1,6 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ subdir-y += allwinner
+ subdir-y += canaan
++subdir-y += codasip
+ subdir-y += microchip
+ subdir-y += renesas
+ subdir-y += sifive
+-- 
+2.39.3
+

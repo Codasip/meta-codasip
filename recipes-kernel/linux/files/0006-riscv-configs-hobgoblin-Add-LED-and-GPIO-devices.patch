@@ -1,0 +1,40 @@
+From 4540bc5dfb41209ac9e35a05d04cdd9aa4fb8d01 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Thu, 29 Feb 2024 14:51:27 +0000
+Subject: [PATCH 06/11] riscv: configs: hobgoblin: Add LED and GPIO devices
+
+While the DTS has always described the LED and GPIO features, the
+defconfig was missing them.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ arch/riscv/configs/codasip-a70x-hobgoblin_defconfig | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
+index dee405fda3a7..56cffa4c5e93 100644
+--- a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
++++ b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
+@@ -54,6 +54,7 @@ CONFIG_NETDEVICES=y
+ CONFIG_VIRTIO_NET=y
+ # CONFIG_WLAN is not set
+ CONFIG_INPUT_MOUSEDEV=y
++CONFIG_KEYBOARD_GPIO=y
+ CONFIG_VT_HW_CONSOLE_BINDING=y
+ CONFIG_SERIAL_8250=y
+ CONFIG_SERIAL_8250_CONSOLE=y
+@@ -80,6 +81,11 @@ CONFIG_POWER_SUPPLY=y
+ # CONFIG_USB_SUPPORT is not set
+ CONFIG_MMC=y
+ CONFIG_MMC_SPI=y
++CONFIG_NEW_LEDS=y
++CONFIG_LEDS_CLASS=y
++CONFIG_LEDS_GPIO=y
++CONFIG_LEDS_TRIGGERS=y
++CONFIG_LEDS_TRIGGER_HEARTBEAT=y
+ CONFIG_RTC_CLASS=y
+ # CONFIG_RTC_NVMEM is not set
+ CONFIG_RTC_DRV_GOLDFISH=y
+-- 
+2.39.3
+

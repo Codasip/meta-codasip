@@ -1,0 +1,30 @@
+From 9dbda27017e7640c80e2aa9f3501aff12d39ba5d Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Mon, 25 Mar 2024 21:15:10 +0000
+Subject: [PATCH 11/11] net: emaclite: Fix xemaclite_aligned_read() of trailing
+ bytes
+
+The final loop in xemaclite_aligned_read() to copy upto three
+trailing bytes was missing the increment of the pointers.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+index 6de977028c3b..f5902330585b 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -273,7 +273,7 @@ static void xemaclite_aligned_read(const void __iomem *reg, u8 *dest_ptr,
+ 
+ 		/* Read the remaining data */
+ 		for (; length > 0; length--)
+-			*to_u8_ptr = *from_u8_ptr;
++			*to_u8_ptr++ = *from_u8_ptr++;
+ 	}
+ }
+ 
+-- 
+2.39.3
+

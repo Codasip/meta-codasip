@@ -1,0 +1,32 @@
+From 2c62d5e5349635af32204a8da2e1db9c5ac5ffaa Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Mon, 15 Jan 2024 13:16:44 +0000
+Subject: [PATCH 01/11] riscv: Add the Codasip SoC family Kconfig option
+
+Add infrastructure to support the Codasip family of RISC-V SoCs.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ arch/riscv/Kconfig.socs | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/arch/riscv/Kconfig.socs b/arch/riscv/Kconfig.socs
+index 6833d01e2e70..63edb537df1e 100644
+--- a/arch/riscv/Kconfig.socs
++++ b/arch/riscv/Kconfig.socs
+@@ -48,6 +48,12 @@ config ARCH_THEAD
+ 	help
+ 	  This enables support for the RISC-V based T-HEAD SoCs.
+ 
++config ARCH_CODASIP
++	bool "Codasip RISC-V SoCs"
++	depends on MMU && !XIP_KERNEL
++	help
++	  This enables support for the Codasip RISC-V SoCs.
++
+ config ARCH_VIRT
+ 	def_bool SOC_VIRT
+ 
+-- 
+2.39.3
+
