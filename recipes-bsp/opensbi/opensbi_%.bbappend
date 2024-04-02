@@ -1,8 +1,7 @@
-FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
-SRCREV = "${AUTOREV}"
-PV = "1.2+git${SRCPV}"
+ERROR_QA:remove = "patch-status"
 
-SRC_URI = " \
-    git://${CODASIP_GIT_REPO}/opensbi;protocol=${CODASIP_GIT_PROTOCOL};branch=${CODASIP_GIT_BRANCH} \
+SRC_URI += " \
+    file://0001-platform-generic-use-minimal-defconfig.patch \
 "
