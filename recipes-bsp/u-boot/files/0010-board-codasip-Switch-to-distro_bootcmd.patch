@@ -1,0 +1,50 @@
+From ee07f8f2ae42bd02df47a50c6cdce606d4b78906 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Wed, 31 Jan 2024 17:39:58 +0000
+Subject: [PATCH 10/12] board: codasip: Switch to distro_bootcmd
+
+To make it easier for distributions to configure the boot
+environment, switch to the standard distro_bootcmd method.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ configs/codasip-a70x-hobgoblin_smode_defconfig | 1 -
+ include/configs/codasip-a70x.h                 | 7 +++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/configs/codasip-a70x-hobgoblin_smode_defconfig b/configs/codasip-a70x-hobgoblin_smode_defconfig
+index 59fb6ac48d..4b057f6ec0 100644
+--- a/configs/codasip-a70x-hobgoblin_smode_defconfig
++++ b/configs/codasip-a70x-hobgoblin_smode_defconfig
+@@ -14,7 +14,6 @@ CONFIG_SYS_MEMTEST_START=0x81000000
+ CONFIG_SYS_MEMTEST_END=0xbf000000
+ CONFIG_DISTRO_DEFAULTS=y
+ CONFIG_BOOTDELAY=3
+-CONFIG_BOOTCOMMAND="booti 0x81000000 - ${fdtcontroladdr}"
+ CONFIG_USE_PREBOOT=y
+ CONFIG_PREBOOT="setenv fdt_addr ${fdtcontroladdr}; fdt addr ${fdtcontroladdr};"
+ CONFIG_MISC_INIT_R=y
+diff --git a/include/configs/codasip-a70x.h b/include/configs/codasip-a70x.h
+index a7b5d1fac7..7a70f6898e 100644
+--- a/include/configs/codasip-a70x.h
++++ b/include/configs/codasip-a70x.h
+@@ -3,9 +3,16 @@
+ 
+ #include <linux/sizes.h>
+ 
++#define BOOT_TARGET_DEVICES(func) \
++	func(MMC, mmc, 0)
++
++#include <config_distro_bootcmd.h>
++
+ #define CFG_EXTRA_ENV_SETTINGS \
++	"scriptaddr=0x88000000\0" \
+ 	"fdt_high=0xffffffffffffffff\0" \
+ 	"kernel_comp_addr_r=0x84000000\0" \
+ 	"kernel_comp_size=0x4000000\0" \
++	BOOTENV
+ 
+ #endif /* CODASIP_A70X_H */
+-- 
+2.39.3
+

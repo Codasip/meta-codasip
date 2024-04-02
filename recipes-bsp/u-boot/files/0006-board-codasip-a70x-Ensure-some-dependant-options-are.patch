@@ -1,0 +1,36 @@
+From dc72270612217bbebc2225629cb0853676964a68 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Tue, 16 Jan 2024 10:45:25 +0000
+Subject: [PATCH 06/12] board: codasip: a70x: Ensure some dependant options are
+ enabled
+
+The board requires certain options to be enabled for correct
+functioning of the peripherals, so enable them by default.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ board/codasip/a70x/Kconfig | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/board/codasip/a70x/Kconfig b/board/codasip/a70x/Kconfig
+index 1276a76004..7928587ff6 100644
+--- a/board/codasip/a70x/Kconfig
++++ b/board/codasip/a70x/Kconfig
+@@ -15,4 +15,14 @@ config SYS_CONFIG_NAME
+ config TEXT_BASE
+ 	default 0x80000000 if !RISCV_SMODE
+ 	default 0x80200000 if RISCV_SMODE
++
++config BOARD_SPECIFIC_OPTIONS # dummy
++	def_bool y
++	select GENERIC_RISCV
++	imply MMC
++	imply SPI
++	imply MMC_SPI
++	imply XILINX_GPIO
++	imply GPIO_HOG
++
+ endif
+-- 
+2.39.3
+

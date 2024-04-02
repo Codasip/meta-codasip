@@ -1,0 +1,27 @@
+From be28f166291e8a04d51bb1f80adab6a6084cdf4c Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Tue, 16 Jan 2024 11:14:08 +0000
+Subject: [PATCH 09/12] board: codasip: Remove CONFIG_SYS_SDRAM_BASE
+
+Nothing uses it.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ include/configs/codasip-a70x.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/include/configs/codasip-a70x.h b/include/configs/codasip-a70x.h
+index b1ac38ef05..a7b5d1fac7 100644
+--- a/include/configs/codasip-a70x.h
++++ b/include/configs/codasip-a70x.h
+@@ -3,7 +3,6 @@
+ 
+ #include <linux/sizes.h>
+ 
+-#define CONFIG_SYS_SDRAM_BASE		0x80000000
+ #define CFG_EXTRA_ENV_SETTINGS \
+ 	"fdt_high=0xffffffffffffffff\0" \
+ 	"kernel_comp_addr_r=0x84000000\0" \
+-- 
+2.39.3
+

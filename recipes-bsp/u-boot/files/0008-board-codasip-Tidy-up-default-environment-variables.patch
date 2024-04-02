@@ -1,0 +1,63 @@
+From c288baf6a18d0e9fd319e9eee341ca0c14b5d623 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Tue, 16 Jan 2024 11:13:29 +0000
+Subject: [PATCH 08/12] board: codasip: Tidy up default environment variables
+
+As we currently have no support for networking, most of the
+environment variables set in this file are unused. Remove them.
+
+Add the definitions needed to support a compressed kernel image.
+
+As CONFIG_EXTRA_ENV_SETTINGS doesn't come from the build config,
+it has been renamed CFG_SYS_SDRAM_BASE (see 0613c36a7 ("global:
+Migrate CONFIG_EXTRA_ENV_SETTINGS to CFG"), do the same here.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ include/configs/codasip-a70x.h | 30 +++---------------------------
+ 1 file changed, 3 insertions(+), 27 deletions(-)
+
+diff --git a/include/configs/codasip-a70x.h b/include/configs/codasip-a70x.h
+index f5a5fede74..b1ac38ef05 100644
+--- a/include/configs/codasip-a70x.h
++++ b/include/configs/codasip-a70x.h
+@@ -4,33 +4,9 @@
+ #include <linux/sizes.h>
+ 
+ #define CONFIG_SYS_SDRAM_BASE		0x80000000
+-#define CONFIG_EXTRA_ENV_SETTINGS \
++#define CFG_EXTRA_ENV_SETTINGS \
+ 	"fdt_high=0xffffffffffffffff\0" \
+-	"mmcdev=0\0" \
+-	"bootenvfile=uEnv.txt\0" \
+-	"linuxfile=Image\0" \
+-	"linuxaddr=0x81000000\0" \
+-	"dtbaddr=0x86000000\0" \
+-	"envboot=fatload mmc 0 ${loadaddr} ${bootenvfile} && " \
+-		"env import -t ${loadaddr} ${filesize};\0" \
+-	"downloaddtb=${netcmd} ${dtbaddr} ${serverip}:${dtbfile};\0" \
+-	"downloadlinux=${netcmd} ${linuxaddr} ${serverip}:${linuxfile};\0" \
+-	"netboot=if test -z \"${serverip}\"; then " \
+-			"echo No TFTP server IP address specified, set the variable serverip.; " \
+-		"else " \
+-			"if test -n ${ipaddr}; then " \
+-				"setenv netcmd tftpboot; " \
+-			"else " \
+-				"setenv netcmd dhcp; " \
+-			"fi; " \
+-			"if test -n ${dtbfile}; then " \
+-				"run downloaddtb && " \
+-				"run downloadlinux && " \
+-				"booti ${linuxaddr} - ${dtbaddr}; " \
+-			"else " \
+-				"run downloadlinux && " \
+-				"boot; " \
+-			"fi; " \
+-		"fi;\0" \
++	"kernel_comp_addr_r=0x84000000\0" \
++	"kernel_comp_size=0x4000000\0" \
+ 
+ #endif /* CODASIP_A70X_H */
+-- 
+2.39.3
+

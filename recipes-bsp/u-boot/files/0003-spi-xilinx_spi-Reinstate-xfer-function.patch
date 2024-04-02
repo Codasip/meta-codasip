@@ -1,0 +1,178 @@
+From 6c92686503f501103372e5e8d930f48f856c99d6 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Mon, 8 Jan 2024 13:12:10 +0000
+Subject: [PATCH 03/12] spi: xilinx_spi: Reinstate xfer function
+
+When the code was reworked to use the spi memory operation functions
+in commit f2dd6599d ("spi: xilinx_spi: Add support for spi memory
+operations") the xfer function was removed. However we want to
+use the SPI controller to talk to an SD card, so this needs to be
+reinstated.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ drivers/spi/xilinx_spi.c | 87 +++++++++++++++++++++++++++++-----------
+ 1 file changed, 63 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/spi/xilinx_spi.c b/drivers/spi/xilinx_spi.c
+index 99af561006..7eb7b152a0 100644
+--- a/drivers/spi/xilinx_spi.c
++++ b/drivers/spi/xilinx_spi.c
+@@ -217,9 +217,9 @@ static u32 xilinx_spi_read_rxfifo(struct udevice *bus, u8 *rxp, u32 rxbytes)
+ 	return i;
+ }
+ 
+-static int start_transfer(struct spi_slave *spi, const void *dout, void *din, u32 len)
++static int start_transfer(struct udevice *dev, const void *dout, void *din, u32 len)
+ {
+-	struct udevice *bus = spi->dev->parent;
++	struct udevice *bus = dev_get_parent(dev);
+ 	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+ 	struct xilinx_spi_regs *regs = priv->regs;
+ 	u32 count, txbytes, rxbytes;
+@@ -259,24 +259,72 @@ static int start_transfer(struct spi_slave *spi, const void *dout, void *din, u3
+ 	return 0;
+ }
+ 
+-static void xilinx_spi_startup_block(struct spi_slave *spi)
++/*
++ * This is the work around for the startup block issue in
++ * the spi controller. SPI clock is passing through STARTUP
++ * block to FLASH. STARTUP block don't provide clock as soon
++ * as QSPI provides command. So first command fails.
++ */
++static void xilinx_spi_startup_block(struct udevice *dev)
+ {
++	struct udevice *bus = dev_get_parent(dev);
++	struct xilinx_spi_priv *priv = dev_get_priv(bus);
+ 	struct dm_spi_slave_plat *slave_plat =
+-				dev_get_parent_plat(spi->dev);
++				dev_get_parent_plat(dev);
+ 	unsigned char txp;
+ 	unsigned char rxp[8];
+ 
++	if (priv->startup)
++		return;
++
++	priv->startup = 1;
++
+ 	/*
+ 	 * Perform a dummy read as a work around for
+ 	 * the startup block issue.
+ 	 */
+-	spi_cs_activate(spi->dev, slave_plat->cs);
++	spi_cs_activate(dev, slave_plat->cs);
+ 	txp = 0x9f;
+-	start_transfer(spi, (void *)&txp, NULL, 1);
++	start_transfer(dev, (void *)&txp, NULL, 1);
+ 
+-	start_transfer(spi, NULL, (void *)rxp, 6);
++	start_transfer(dev, NULL, (void *)rxp, 6);
+ 
+-	spi_cs_deactivate(spi->dev);
++	spi_cs_deactivate(dev);
++}
++
++static int xilinx_spi_xfer(struct udevice *dev, unsigned int bitlen,
++			    const void *dout, void *din, unsigned long flags)
++{
++	struct udevice *bus = dev_get_parent(dev);
++	struct dm_spi_slave_plat *slave_plat = dev_get_parent_plat(dev);
++	/* assume spi core configured to do 8 bit transfers */
++	unsigned int bytes = bitlen / XILSPI_MAX_XFER_BITS;
++
++	debug("spi_xfer: bus:%i cs:%i bitlen:%i bytes:%i flags:%lx\n",
++	      dev_seq(bus), slave_plat->cs, bitlen, bytes, flags);
++
++	if (bitlen == 0)
++		goto done;
++
++	if (bitlen % XILSPI_MAX_XFER_BITS) {
++		printf("XILSPI warning: Not a multiple of %d bits\n",
++		       XILSPI_MAX_XFER_BITS);
++		flags |= SPI_XFER_END;
++		goto done;
++	}
++
++	if (flags & SPI_XFER_BEGIN)
++		spi_cs_activate(dev, slave_plat->cs);
++
++	xilinx_spi_startup_block(dev);
++
++	start_transfer(dev, dout, din, bytes);
++
++ done:
++	if (flags & SPI_XFER_END)
++		spi_cs_deactivate(dev);
++
++	return 0;
+ }
+ 
+ static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
+@@ -284,24 +332,14 @@ static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
+ {
+ 	struct dm_spi_slave_plat *slave_plat =
+ 				dev_get_parent_plat(spi->dev);
+-	static u32 startup;
+ 	u32 dummy_len, ret;
+ 
+-	/*
+-	 * This is the work around for the startup block issue in
+-	 * the spi controller. SPI clock is passing through STARTUP
+-	 * block to FLASH. STARTUP block don't provide clock as soon
+-	 * as QSPI provides command. So first command fails.
+-	 */
+-	if (!startup) {
+-		xilinx_spi_startup_block(spi);
+-		startup++;
+-	}
++	xilinx_spi_startup_block(spi->dev);
+ 
+ 	spi_cs_activate(spi->dev, slave_plat->cs);
+ 
+ 	if (op->cmd.opcode) {
+-		ret = start_transfer(spi, (void *)&op->cmd.opcode, NULL, 1);
++		ret = start_transfer(spi->dev, (void *)&op->cmd.opcode, NULL, 1);
+ 		if (ret)
+ 			goto done;
+ 	}
+@@ -313,7 +351,7 @@ static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
+ 			addr_buf[i] = op->addr.val >>
+ 			(8 * (op->addr.nbytes - i - 1));
+ 
+-		ret = start_transfer(spi, (void *)addr_buf, NULL,
++		ret = start_transfer(spi->dev, (void *)addr_buf, NULL,
+ 				     op->addr.nbytes);
+ 		if (ret)
+ 			goto done;
+@@ -322,16 +360,16 @@ static int xilinx_spi_mem_exec_op(struct spi_slave *spi,
+ 		dummy_len = (op->dummy.nbytes * op->data.buswidth) /
+ 			     op->dummy.buswidth;
+ 
+-		ret = start_transfer(spi, NULL, NULL, dummy_len);
++		ret = start_transfer(spi->dev, NULL, NULL, dummy_len);
+ 		if (ret)
+ 			goto done;
+ 	}
+ 	if (op->data.nbytes) {
+ 		if (op->data.dir == SPI_MEM_DATA_IN) {
+-			ret = start_transfer(spi, NULL,
++			ret = start_transfer(spi->dev, NULL,
+ 					     op->data.buf.in, op->data.nbytes);
+ 		} else {
+-			ret = start_transfer(spi, op->data.buf.out,
++			ret = start_transfer(spi->dev, op->data.buf.out,
+ 					     NULL, op->data.nbytes);
+ 		}
+ 		if (ret)
+@@ -427,6 +465,7 @@ static const struct spi_controller_mem_ops xilinx_spi_mem_ops = {
+ static const struct dm_spi_ops xilinx_spi_ops = {
+ 	.claim_bus	= xilinx_spi_claim_bus,
+ 	.release_bus	= xilinx_spi_release_bus,
++	.xfer		= xilinx_spi_xfer,
+ 	.set_speed	= xilinx_spi_set_speed,
+ 	.set_mode	= xilinx_spi_set_mode,
+ 	.mem_ops	= &xilinx_spi_mem_ops,
+-- 
+2.39.3
+

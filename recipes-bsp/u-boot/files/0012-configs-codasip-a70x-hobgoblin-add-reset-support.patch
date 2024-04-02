@@ -1,0 +1,23 @@
+From 7d24664ab2c8488579e819caa66d2432eba55eb0 Mon Sep 17 00:00:00 2001
+From: Samuel Obuch <samuel.obuch@codasip.com>
+Date: Mon, 4 Mar 2024 21:13:25 +0100
+Subject: [PATCH 12/12] configs: codasip-a70x-hobgoblin: add reset support
+
+Enables reset command, tested on Genesys2
+---
+ configs/codasip-a70x-hobgoblin_smode_defconfig | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/configs/codasip-a70x-hobgoblin_smode_defconfig b/configs/codasip-a70x-hobgoblin_smode_defconfig
+index f1b3bd7518..c7f078d02c 100644
+--- a/configs/codasip-a70x-hobgoblin_smode_defconfig
++++ b/configs/codasip-a70x-hobgoblin_smode_defconfig
+@@ -44,3 +44,5 @@ CONFIG_SYS_NS16550=y
+ CONFIG_XILINX_SPI=y
+ # CONFIG_EFI_LOADER is not set
+ CONFIG_LMB_MAX_REGIONS=8
++CONFIG_SYSRESET=y
++CONFIG_SYSRESET_GPIO=y
+-- 
+2.39.3
+

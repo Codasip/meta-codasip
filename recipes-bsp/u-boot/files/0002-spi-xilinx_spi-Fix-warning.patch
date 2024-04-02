@@ -1,0 +1,32 @@
+From 0e11ee0e10396ff397dd79835de66607a2d90899 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Mon, 8 Jan 2024 12:56:20 +0000
+Subject: [PATCH 02/12] spi: xilinx_spi: Fix warning
+
+Building on a 64 bit platform results in the following warning:
+drivers/spi/xilinx_spi.c:72:33: warning: conversion from 'long unsigned int' to 'u32' {aka 'unsigned int'} changes value from '18446744073709551615' to '4294967295' [-Woverflow]
+   72 | #define SPISSR_OFF              ~0UL
+
+Change this to an explicit 32 bit value.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ drivers/spi/xilinx_spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/spi/xilinx_spi.c b/drivers/spi/xilinx_spi.c
+index b58a3f632a..99af561006 100644
+--- a/drivers/spi/xilinx_spi.c
++++ b/drivers/spi/xilinx_spi.c
+@@ -67,7 +67,7 @@
+ /* SPI Slave Select Register (spissr), [1] p13, [2] p13 */
+ #define SPISSR_MASK(cs)		(1 << (cs))
+ #define SPISSR_ACT(cs)		~SPISSR_MASK(cs)
+-#define SPISSR_OFF		~0UL
++#define SPISSR_OFF		0xffffffffUL
+ 
+ /* SPI Software Reset Register (ssr) */
+ #define SPISSR_RESET_VALUE	0x0a
+-- 
+2.39.3
+
