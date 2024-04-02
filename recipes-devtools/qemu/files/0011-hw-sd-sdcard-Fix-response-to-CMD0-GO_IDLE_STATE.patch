@@ -1,0 +1,42 @@
+From cf4148fe3473a882e8700bd87862fce386240626 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Tue, 23 Jan 2024 11:03:31 +0000
+Subject: [PATCH 11/17] hw/sd/sdcard: Fix response to CMD0 (GO_IDLE_STATE)
+
+This fixes a problem seen when U-Boot is loaded by FSBL:
+ - FSBL has just read data from the SD card, leaving the card in
+   transfer state.
+ - U-Boot issues CMD0 to switch the card into SPI mode.
+ - SD card code returns state _before_ the current command, ie transfer
+   state.
+ - SSI adaptor code translates this to card is _not_ idle.
+This causes U-Boot to fail to initialise the card.
+
+Assuming CMD0 works, then the card is now idle, so ignore the
+previous state returned by SD card.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ hw/sd/ssi-sd.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/hw/sd/ssi-sd.c b/hw/sd/ssi-sd.c
+index cb5d98a2ea..26db67bea7 100644
+--- a/hw/sd/ssi-sd.c
++++ b/hw/sd/ssi-sd.c
+@@ -214,6 +214,12 @@ static uint32_t ssi_sd_transfer(SSIPeripheral *dev, uint32_t val)
+                 }
+ 
+                 cardstatus = ldl_be_p(longresp);
++
++                /* CMD0 resets the card to idle state, so we don't care about
++                 * the state before the command. */
++                if (s->cmd == 0)
++                    cardstatus &= ~CURRENT_STATE;
++
+                 status = 0;
+                 if (((cardstatus >> 9) & 0xf) < 4)
+                     status |= SSI_SDR_IDLE;
+-- 
+2.39.3
+

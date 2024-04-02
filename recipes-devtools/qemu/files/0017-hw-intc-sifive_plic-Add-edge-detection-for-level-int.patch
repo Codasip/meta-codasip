@@ -1,0 +1,88 @@
+From 1ebc394a5764adf75b8a4ed5999cfb59fc0610d1 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Fri, 22 Mar 2024 11:29:04 +0000
+Subject: [PATCH 17/17] hw/intc: sifive_plic: Add edge detection for level
+ interrupts
+
+The RISC-V PLIC spec allows for both edge and level sensitive interrupts,
+however even level sensitive interrupts (which are modelled here) have an
+element of edge detection:
+
+  The gateway does not have the facility to retract an interrupt
+  request once forwarded to the PLIC core. If a level-sensitive
+  interrupt source deasserts the interrupt after the PLIC core
+  accepts the request and before the interrupt is serviced, the
+  interrupt request remains present in the IP bit of the PLIC core
+  and will be serviced by a handler, which will then have to determine
+  that the interrupt device no longer requires service.
+
+Model this here.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ hw/intc/sifive_plic.c         | 15 +++++++++++++--
+ include/hw/intc/sifive_plic.h |  1 +
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/hw/intc/sifive_plic.c b/hw/intc/sifive_plic.c
+index 5522ede2cf..b439e93d74 100644
+--- a/hw/intc/sifive_plic.c
++++ b/hw/intc/sifive_plic.c
+@@ -62,6 +62,11 @@ static uint32_t atomic_set_masked(uint32_t *a, uint32_t mask, uint32_t value)
+     return old;
+ }
+ 
++static void sifive_plic_set_request(SiFivePLICState *plic, int irq, bool level)
++{
++    atomic_set_masked(&plic->request[irq >> 5], 1 << (irq & 31), -!!level);
++}
++
+ static void sifive_plic_set_pending(SiFivePLICState *plic, int irq, bool level)
+ {
+     atomic_set_masked(&plic->pending[irq >> 5], 1 << (irq & 31), -!!level);
+@@ -241,6 +246,8 @@ static void sifive_plic_write(void *opaque, hwaddr addr, uint64_t value,
+         } else if (contextid == 4) {
+             if (value < plic->num_sources) {
+                 sifive_plic_set_claimed(plic, value, false);
++                if (plic->request[value >> 5] & (1 << (value & 31)))
++                    sifive_plic_set_pending(plic, value, true);
+                 sifive_plic_update(plic);
+             }
+         } else {
+@@ -349,8 +356,11 @@ static void sifive_plic_irq_request(void *opaque, int irq, int level)
+ {
+     SiFivePLICState *s = opaque;
+ 
+-    sifive_plic_set_pending(s, irq, level > 0);
+-    sifive_plic_update(s);
++    sifive_plic_set_request(s, irq, level);
++    if (level > 0) {
++        sifive_plic_set_pending(s, irq, true);
++        sifive_plic_update(s);
++    }
+ }
+ 
+ static void sifive_plic_realize(DeviceState *dev, Error **errp)
+@@ -376,6 +386,7 @@ static void sifive_plic_realize(DeviceState *dev, Error **errp)
+     s->pending = g_new0(uint32_t, s->bitfield_words);
+     s->claimed = g_new0(uint32_t, s->bitfield_words);
+     s->enable = g_new0(uint32_t, s->num_enables);
++    s->request = g_new0(uint32_t, s->bitfield_words);
+ 
+     qdev_init_gpio_in(dev, sifive_plic_irq_request, s->num_sources);
+ 
+diff --git a/include/hw/intc/sifive_plic.h b/include/hw/intc/sifive_plic.h
+index d3f45ec248..2c93093a1f 100644
+--- a/include/hw/intc/sifive_plic.h
++++ b/include/hw/intc/sifive_plic.h
+@@ -53,6 +53,7 @@ struct SiFivePLICState {
+     uint32_t bitfield_words;
+     uint32_t num_enables;
+     PLICAddr *addr_config;
++    uint32_t *request;
+     uint32_t *source_priority;
+     uint32_t *target_priority;
+     uint32_t *pending;
+-- 
+2.39.3
+

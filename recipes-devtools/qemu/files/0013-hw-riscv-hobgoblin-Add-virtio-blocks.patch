@@ -1,0 +1,78 @@
+From c8ae31424338ec46888f2de278286ccd6e036950 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Thu, 29 Feb 2024 15:45:40 +0000
+Subject: [PATCH 13/17] hw/riscv/hobgoblin: Add virtio blocks
+
+Add four virtio blocks so that various virtual IO devices can be
+added.
+---
+ hw/riscv/hobgoblin.c         | 11 +++++++++++
+ include/hw/riscv/hobgoblin.h |  5 +++--
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/hw/riscv/hobgoblin.c b/hw/riscv/hobgoblin.c
+index b3e8ea2493..8472603dac 100644
+--- a/hw/riscv/hobgoblin.c
++++ b/hw/riscv/hobgoblin.c
+@@ -64,6 +64,7 @@ static const struct MemmapEntry {
+     [HOBGOBLIN_SPI] =      { 0x60210000,     0x1000 },
+     [HOBGOBLIN_GPIO0] =    { 0x60300000,    0x10000 },
+     [HOBGOBLIN_GPIO1] =    { 0x60310000,    0x10000 },
++    [HOBGOBLIN_VIRTIO] =   { 0x70000000,    0x10000 },
+     [HOBGOBLIN_DRAM] =     { 0x80000000, 0x40000000 },
+ };
+ 
+@@ -77,10 +78,13 @@ static const struct MemmapEntry {
+ #define HOBGOBLIN_PLIC_CONTEXT_BASE 0x200000
+ #define HOBGOBLIN_PLIC_CONTEXT_STRIDE 0x1000
+ 
++#define NUM_VIRTIO_TRANSPORTS   4
++
+ #define HOBGOBLIN_UART0_IRQ     1
+ #define HOBGOBLIN_SPI_IRQ       4
+ #define HOBGOBLIN_GPIO0_IRQ     7
+ #define HOBGOBLIN_GPIO1_IRQ     8
++#define HOBGOBLIN_VIRTIO_IRQ    28 /* to 31 */
+ 
+ /* CLINT timebase frequency */
+ #define CLINT_TIMEBASE_FREQ 100000000
+@@ -194,6 +198,13 @@ static void hobgoblin_board_init(MachineState *machine)
+                                                 HOBGOBLIN_GPIO0_IRQ + i));
+     }
+ 
++    /* VirtIO */
++    for (i = 0; i < NUM_VIRTIO_TRANSPORTS; i++) {
++        sysbus_create_simple("virtio-mmio", memmap[HOBGOBLIN_VIRTIO].base + 0x200 * i,
++                             qdev_get_gpio_in(DEVICE(s->plic),
++                                              HOBGOBLIN_VIRTIO_IRQ + i));
++    }
++
+     if (s->boot_from_rom) {
+         /* Load the FSBL and set the ZSBL to point to it */
+         start_addr = memmap[HOBGOBLIN_BOOT_ROM].base;
+diff --git a/include/hw/riscv/hobgoblin.h b/include/hw/riscv/hobgoblin.h
+index e4b94c4277..69d62868f3 100644
+--- a/include/hw/riscv/hobgoblin.h
++++ b/include/hw/riscv/hobgoblin.h
+@@ -17,8 +17,8 @@
+  * this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
+-#ifndef HW_RISCV_SPIKE_H
+-#define HW_RISCV_SPIKE_H
++#ifndef HW_RISCV_HOBGOBLIN_H
++#define HW_RISCV_HOBGOBLIN_H
+ 
+ #include "hw/riscv/riscv_hart.h"
+ #include "hw/sysbus.h"
+@@ -50,6 +50,7 @@ enum {
+     HOBGOBLIN_SPI,
+     HOBGOBLIN_GPIO0,
+     HOBGOBLIN_GPIO1,
++    HOBGOBLIN_VIRTIO,
+     HOBGOBLIN_DRAM
+ };
+ 
+-- 
+2.39.3
+

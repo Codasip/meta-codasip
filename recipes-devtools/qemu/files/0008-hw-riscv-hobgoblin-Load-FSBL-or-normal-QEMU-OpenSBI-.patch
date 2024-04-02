@@ -1,0 +1,393 @@
+From bdb7c6f66fddf144afff07bde988b106473c2945 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Mon, 22 Jan 2024 16:02:38 +0000
+Subject: [PATCH 08/17] hw/riscv/hobgoblin: Load FSBL or normal QEMU
+ OpenSBI/kernel/FDT
+
+Remove the support for parsing config.txt by QEMU itself, and add
+code to either:
+ - load the FSBL into ROM, which can access an SD card image to
+   emulate the FPGA hardware even more closely
+ - load the OpenSBI/kernel/FDT as qemu does for other platforms
+
+Which behaviour is used depends on a new machine specific option:
+boot-from-rom.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ hw/riscv/hobgoblin.c         | 282 ++++++++++++-----------------------
+ include/hw/riscv/hobgoblin.h |   7 +
+ 2 files changed, 103 insertions(+), 186 deletions(-)
+
+diff --git a/hw/riscv/hobgoblin.c b/hw/riscv/hobgoblin.c
+index 3f0b253641..ef7741368f 100644
+--- a/hw/riscv/hobgoblin.c
++++ b/hw/riscv/hobgoblin.c
+@@ -55,6 +55,8 @@ static const struct MemmapEntry {
+     hwaddr size;
+ } hobgoblin_memmap[] = {
+     [HOBGOBLIN_MROM] =     {     0x1000,      0x100 },
++    [HOBGOBLIN_BOOT_ROM] = { 0x10000000, 0x00010000 },
++    [HOBGOBLIN_BOOT_RAM] = { 0x10400000, 0x00008000 },
+     [HOBGOBLIN_PLIC] =     { 0x40000000,  0x4000000 },
+     [HOBGOBLIN_CLINT] =    { 0x60014000,     0xc000 },
+     [HOBGOBLIN_UART0] =    { 0x60100000,     0x1020 },
+@@ -82,155 +84,19 @@ static const struct MemmapEntry {
+ /* CLINT timebase frequency */
+ #define CLINT_TIMEBASE_FREQ 100000000
+ 
+-#define CFG_ID_NONE -1
+-#define CFG_ID_BOOT 0
+-#define CFG_ID_FDT 1
+-#define CFG_ID_NXT 2
+-#define CFG_ID_COUNT (CFG_ID_NXT+1)
+-
+-struct cfg_entry {
+-    const char* filename;
+-    hwaddr address;
+-};
+-
+-static struct cfg_entry* hobgoblin_parse_cfg(const char *cfg_path,
+-                int *num_entries_p, int id_entries[CFG_ID_COUNT])
+-{
+-    FILE *file;
+-    char *buf;
+-    size_t buf_size;
+-    ssize_t line_len;
+-    int line_number = 1;
+-    struct cfg_entry *entries;
+-    int entries_alloced;
+-    int num_entries;
+-    const char *id_names[] = {
+-        "BOOT", "FDT", "NXT"
+-    };
+-
+-    file = fopen(cfg_path, "r");
+-    if (file == NULL) {
+-        error_report("%s: open %s failed", __func__, cfg_path);
+-        return NULL;
+-    }
+-
+-    entries = NULL;
+-    entries_alloced = 0;
+-    num_entries = 0;
+-
+-    buf = NULL;
+-    buf_size = 0;
+-    while ((line_len = getline(&buf, &buf_size, file)) != -1) {
+-        char *hash;
+-        char *filename, *address_str, *id_str, *extra;
+-        int n;
+-        hwaddr address;
+-        int id_entry;
+-
+-        if (buf[line_len] == '\n')
+-            buf[line_len] = '\0';
+-
+-        hash = strchr(buf, '#');
+-        if (hash)
+-            *hash = '\0';
+-
+-        n = sscanf(buf, "%ms %ms %ms %ms", &filename, &address_str, &id_str,
+-                   &extra);
+-
+-        if (n > 3) {
+-            error_report("%s: %s:%d ignoring trailing \"%s\"", __func__,
+-                         cfg_path, line_number, extra);
+-            fclose(file);
+-            return NULL;
+-        }
+-
+-        id_entry = CFG_ID_NONE;
+-        if (n > 2) {
+-            for (id_entry = 0; id_entry < CFG_ID_COUNT; id_entry++)
+-                if (!strcmp(id_str, id_names[id_entry]))
+-                    goto id_found;
+-
+-            error_report("%s: %s:%d invalid ID \"%s\"", __func__,
+-                         cfg_path, line_number, id_str);
+-            fclose(file);
+-            return NULL;
+-        id_found:
+-            ;
+-        }
+-
+-        if (n > 1) {
+-            address = strtoull(address_str, &extra, 0);
+-            if (address == ULLONG_MAX || *extra != '\0') {
+-                error_report("%s: %s:%d error parsing address \"%s\"", __func__,
+-                             cfg_path, line_number, address_str);
+-                fclose(file);
+-                return NULL;
+-            }
+-
+-            if (entries_alloced == num_entries) {
+-                entries_alloced += 10;
+-                entries = reallocarray(entries, entries_alloced,
+-                                       sizeof(struct cfg_entry));
+-                if (!entries) {
+-                    error_report("%s: Out of memory", __func__);
+-                    fclose(file);
+-                    return NULL;
+-                }
+-            }
+-
+-            entries[num_entries].filename = filename;
+-            entries[num_entries].address = address;
+-            if (id_entry != CFG_ID_NONE)
+-                id_entries[id_entry] = num_entries;
+-
+-            num_entries++;
+-        }
+-
+-        line_number++;
+-    }
+-
+-    fclose(file);
+-
+-    *num_entries_p = num_entries;
+-    return entries;
+-}
+-
+-static int hobgloblin_load_images(struct cfg_entry* entries,
+-                 int num_entries, int id_entries[CFG_ID_COUNT])
+-{
+-    int i;
+-    hwaddr top_dram = hobgoblin_memmap[HOBGOBLIN_DRAM].base +
+-        hobgoblin_memmap[HOBGOBLIN_DRAM].size;
+-
+-    for (i=0; i<num_entries; i++) {
+-        hwaddr addr = entries[i].address;
+-        if (addr < hobgoblin_memmap[HOBGOBLIN_DRAM].base ||
+-            addr >= top_dram) {
+-            error_report("%s: Address %#lx outside of memory", __func__, addr);
+-            return -1;
+-        }
+-
+-        if (load_image_targphys(entries[i].filename, addr, top_dram - addr) < 0) {
+-            error_report("%s: Unable to load \"%s\"", __func__,
+-                         entries[i].filename);
+-            return -1;
+-        }
+-    }
+-
+-    return 0;
+-}
+-
+ static void hobgoblin_board_init(MachineState *machine)
+ {
+     const struct MemmapEntry *memmap = hobgoblin_memmap;
+-    HobgoblinState *s = g_new0(HobgoblinState, 1);
++    HobgoblinState *s = HOBGOBLIN_MACHINE(machine);
+     MemoryRegion *system_memory = get_system_memory();
+     MemoryRegion *main_mem = g_new(MemoryRegion, 1);
+     MemoryRegion *mask_rom = g_new(MemoryRegion, 1);
++    MemoryRegion *boot_rom = g_new(MemoryRegion, 1);
++    MemoryRegion *boot_ram = g_new(MemoryRegion, 1);
+     int i;
+-    int id_entries[CFG_ID_COUNT];
+-    struct cfg_entry *entries;
+-    int num_entries;
++    hwaddr start_addr;
++    uint64_t kernel_entry = 0;
++    uint64_t fdt_load_addr = 0;
+     const int smp_cpus = 1;
+     SysBusDevice *ss;
+     DeviceState *sd_dev;
+@@ -254,12 +120,24 @@ static void hobgoblin_board_init(MachineState *machine)
+     memory_region_add_subregion(system_memory, memmap[HOBGOBLIN_DRAM].base,
+                                 main_mem);
+ 
+-    /* boot rom */
++    /* mask rom */
+     memory_region_init_rom(mask_rom, NULL, "riscv.hobgoblin.mrom",
+                            memmap[HOBGOBLIN_MROM].size, &error_fatal);
+     memory_region_add_subregion(system_memory, memmap[HOBGOBLIN_MROM].base,
+                                 mask_rom);
+ 
++    /* boot ROM */
++    memory_region_init_rom(boot_rom, NULL, "riscv.hobgoblin.boot.rom",
++                           memmap[HOBGOBLIN_BOOT_ROM].size, &error_fatal);
++    memory_region_add_subregion(system_memory, memmap[HOBGOBLIN_BOOT_ROM].base,
++                                boot_rom);
++
++    /* boot RAM */
++    memory_region_init_ram(boot_ram, NULL, "riscv.hobgoblin.boot.ram",
++                           memmap[HOBGOBLIN_BOOT_RAM].size, &error_fatal);
++    memory_region_add_subregion(system_memory, memmap[HOBGOBLIN_BOOT_RAM].base,
++                                boot_ram);
++
+     /* MMIO */
+     s->plic = sifive_plic_create(
+         memmap[HOBGOBLIN_PLIC].base,
+@@ -308,50 +186,43 @@ static void hobgoblin_board_init(MachineState *machine)
+                                                 HOBGOBLIN_GPIO0_IRQ + i));
+     }
+ 
+-    /* Load up the memory */
+-    entries = hobgoblin_parse_cfg("config.txt", &num_entries, id_entries);
+-    if (!entries ||
+-        hobgloblin_load_images(entries, num_entries, id_entries)) {
++    if (s->boot_from_rom) {
++        /* Load the FSBL and set the ZSBL to point to it */
++        start_addr = memmap[HOBGOBLIN_BOOT_ROM].base;
++        riscv_find_and_load_firmware(machine, "fsbl_rom.xexe",
++                                     start_addr, NULL);
++    } else if (!machine->dtb || !machine->kernel_filename) {
++        error_report("DTB and kernel files must be provided");
+         exit(1);
+-    }
++    } else {
++        /* Load OpenSBI, Kernel and DTB and the the ZSBL to point to OpenSBI */
++        target_ulong firmware_end_addr, kernel_start_addr;
++        int fdt_size;
++
++        start_addr = memmap[HOBGOBLIN_DRAM].base;
++        firmware_end_addr = riscv_find_and_load_firmware(machine,
++            RISCV64_BIOS_BIN, start_addr, NULL);
++
++        machine->fdt = load_device_tree(machine->dtb, &fdt_size);
++        if (!machine->fdt) {
++            error_report("load_device_tree() failed");
++            exit(1);
++        }
++
++        kernel_start_addr = riscv_calc_kernel_start_addr(&s->soc,
++                                                         firmware_end_addr);
++        kernel_entry = riscv_load_kernel(machine, &s->soc,
++                                         kernel_start_addr, true, NULL);
+ 
+-#define ID_ADDRESS(x) \
+-    entries[id_entries[x]].address & 0xffffffff, \
+-    entries[id_entries[x]].address >> 32
+-
+-    /* reset vector */
+-    /* We want to end up with:
+-     * a0 = heart ID
+-     * a1 = device tree blob
+-     * a2 = &fw_dynamic_info
+-     */
+-    uint32_t reset_vec[] = {
+-        0x00000297,     /*    0:   auipc   t0,0x0       */
+-        0xf1402573,     /*    4:   csrr    a0,mhartid   */
+-        0x0182b583,     /*    8:   ld      a1,24(t0)    */
+-        0x02828613,     /*    c:   addi    a2,t0,40     */
+-        0x0202b283,     /*   10:   ld      t0,32(t0)    */
+-        0x00028067,     /*   14:   jr      t0           */
+-
+-        /* 24: FDT start address */
+-        ID_ADDRESS(CFG_ID_FDT),
+-        /* 32: OpenSBI start address */
+-        ID_ADDRESS(CFG_ID_BOOT),
+-
+-        /* 40: struct fw_dynamic */
+-        0x4942534f, 0,          /* Info magic : "OSBI" */
+-        0x2, 0,                 /* Info version : 2 */
+-        ID_ADDRESS(CFG_ID_NXT), /* Next booting stage address */
+-        0x1, 0,                 /* Next booting stage mode: MODE_S */
+-        0x0, 0,                 /* Options for OpenSBI library */
+-    };
+-
+-    /* copy in the reset vector in little_endian byte order */
+-    for (i = 0; i < sizeof(reset_vec) >> 2; i++) {
+-        reset_vec[i] = cpu_to_le32(reset_vec[i]);
++        fdt_load_addr = riscv_compute_fdt_addr(memmap[HOBGOBLIN_DRAM].base,
++                                               memmap[HOBGOBLIN_DRAM].size,
++                                               machine);
++        riscv_load_fdt(fdt_load_addr, machine->fdt);
+     }
+-    rom_add_blob_fixed_as("mrom.reset", reset_vec, sizeof(reset_vec),
+-                          memmap[HOBGOBLIN_MROM].base, &address_space_memory);
++
++    riscv_setup_rom_reset_vec(machine, &s->soc, start_addr,
++            memmap[HOBGOBLIN_MROM].base, memmap[HOBGOBLIN_MROM].size,
++            kernel_entry, fdt_load_addr);
+ 
+     /* Connect an SD card to SPI */
+     ss = SYS_BUS_DEVICE(s->spi);
+@@ -368,11 +239,50 @@ static void hobgoblin_board_init(MachineState *machine)
+                            &error_fatal);
+ }
+ 
+-static void hobgoblin_machine_init(MachineClass *mc)
++static bool hobgoblin_machine_get_boot_from_rom(Object *obj, Error **errp)
+ {
++    HobgoblinState *s = HOBGOBLIN_MACHINE(obj);
++
++    return s->boot_from_rom;
++}
++
++static void hobgoblin_machine_set_boot_from_rom(Object *obj, bool value, Error **errp)
++{
++    HobgoblinState *s = HOBGOBLIN_MACHINE(obj);
++
++    s->boot_from_rom = value;
++}
++
++static void hobgoblin_machine_instance_init(Object *obj)
++{
++}
++
++static void hobgoblin_machine_class_init(ObjectClass *oc, void *data)
++{
++    MachineClass *mc = MACHINE_CLASS(oc);
++
+     mc->desc = "RISC-V Hobgoblin Board";
+     mc->init = hobgoblin_board_init;
+     mc->max_cpus = 1;
++
++    object_class_property_add_bool(oc, "boot-from-rom",
++                                   hobgoblin_machine_get_boot_from_rom,
++                                   hobgoblin_machine_set_boot_from_rom);
++    object_class_property_set_description(oc, "boot-from-rom",
++                                          "Desc");
++
+ }
+ 
+-DEFINE_MACHINE("hobgoblin", hobgoblin_machine_init)
++static const TypeInfo hobgoblin_typeinfo = {
++    .name       = MACHINE_TYPE_NAME("hobgoblin"),
++    .parent     = TYPE_MACHINE,
++    .class_init = hobgoblin_machine_class_init,
++    .instance_size = sizeof(HobgoblinState),
++    .instance_init = hobgoblin_machine_instance_init,
++};
++
++static void hobgoblin_register_types(void)
++{
++    type_register_static(&hobgoblin_typeinfo);
++}
++type_init(hobgoblin_register_types)
+diff --git a/include/hw/riscv/hobgoblin.h b/include/hw/riscv/hobgoblin.h
+index e35f51467c..3c57c3cebb 100644
+--- a/include/hw/riscv/hobgoblin.h
++++ b/include/hw/riscv/hobgoblin.h
+@@ -23,11 +23,16 @@
+ #include "hw/riscv/riscv_hart.h"
+ #include "hw/sysbus.h"
+ 
++#define TYPE_HOBGOBLIN_MACHINE MACHINE_TYPE_NAME("hobgoblin")
++#define HOBGOBLIN_MACHINE(obj) \
++    OBJECT_CHECK(HobgoblinState, (obj), TYPE_HOBGOBLIN_MACHINE)
++
+ typedef struct {
+     /*< private >*/
+     SysBusDevice parent_obj;
+ 
+     /*< public >*/
++    bool boot_from_rom;
+     RISCVHartArrayState soc;
+     DeviceState *plic;
+     DeviceState *spi;
+@@ -36,6 +41,8 @@ typedef struct {
+ 
+ enum {
+     HOBGOBLIN_MROM,
++    HOBGOBLIN_BOOT_ROM,
++    HOBGOBLIN_BOOT_RAM,
+     HOBGOBLIN_PLIC,
+     HOBGOBLIN_CLINT,
+     HOBGOBLIN_UART0,
+-- 
+2.39.3
+

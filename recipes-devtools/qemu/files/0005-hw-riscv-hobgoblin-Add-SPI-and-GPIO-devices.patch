@@ -1,0 +1,134 @@
+From 15e0487a9a97cd340c5c23b0be1cb4f32545e347 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Wed, 17 Jan 2024 14:33:57 +0000
+Subject: [PATCH 05/17] hw/riscv/hobgoblin: Add SPI and GPIO devices
+
+Add in the Xilinx SPI and GPIO devices instantiated on the Hobgoblin
+platform.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ hw/riscv/Kconfig             |  2 ++
+ hw/riscv/hobgoblin.c         | 33 ++++++++++++++++++++++++++++++++-
+ include/hw/riscv/hobgoblin.h |  5 +++++
+ 3 files changed, 39 insertions(+), 1 deletion(-)
+
+diff --git a/hw/riscv/Kconfig b/hw/riscv/Kconfig
+index 4d7784368d..e17fe84d8a 100644
+--- a/hw/riscv/Kconfig
++++ b/hw/riscv/Kconfig
+@@ -90,3 +90,5 @@ config HOBGOBLIN
+     bool
+     select RISCV_ACLINT
+     select SIFIVE_PLIC
++    select XILINX_SPI
++    select XILINX_AXI_GPIO
+diff --git a/hw/riscv/hobgoblin.c b/hw/riscv/hobgoblin.c
+index 86827a0f97..80e3ec257d 100644
+--- a/hw/riscv/hobgoblin.c
++++ b/hw/riscv/hobgoblin.c
+@@ -44,6 +44,9 @@
+ #include "sysemu/sysemu.h"
+ #include "exec/address-spaces.h"
+ 
++#define TYPE_XILINX_SPI "xlnx.xps-spi"
++#define TYPE_XLNX_AXI_GPIO "xlnx.axi-gpio"
++
+ static const struct MemmapEntry {
+     hwaddr base;
+     hwaddr size;
+@@ -52,6 +55,9 @@ static const struct MemmapEntry {
+     [HOBGOBLIN_PLIC] =     { 0x40000000,  0x4000000 },
+     [HOBGOBLIN_CLINT] =    { 0x60014000,     0xc000 },
+     [HOBGOBLIN_UART0] =    { 0x60100000,     0x1020 },
++    [HOBGOBLIN_SPI] =      { 0x60210000,     0x1000 },
++    [HOBGOBLIN_GPIO0] =    { 0x60300000,    0x10000 },
++    [HOBGOBLIN_GPIO1] =    { 0x60310000,    0x10000 },
+     [HOBGOBLIN_DRAM] =     { 0x80000000, 0x40000000 },
+ };
+ 
+@@ -66,6 +72,9 @@ static const struct MemmapEntry {
+ #define HOBGOBLIN_PLIC_CONTEXT_STRIDE 0x1000
+ 
+ #define HOBGOBLIN_UART0_IRQ     1
++#define HOBGOBLIN_SPI_IRQ       4
++#define HOBGOBLIN_GPIO0_IRQ     7
++#define HOBGOBLIN_GPIO1_IRQ     8
+ 
+ /* CLINT timebase frequency */
+ #define CLINT_TIMEBASE_FREQ 100000000
+@@ -220,6 +229,7 @@ static void hobgoblin_board_init(MachineState *machine)
+     struct cfg_entry *entries;
+     int num_entries;
+     const int smp_cpus = 1;
++    SysBusDevice *ss;
+ 
+     /* Initialize SOC */
+     object_initialize_child(OBJECT(machine), "soc", &s->soc,
+@@ -257,10 +267,20 @@ static void hobgoblin_board_init(MachineState *machine)
+         HOBGOBLIN_PLIC_CONTEXT_STRIDE,
+         memmap[HOBGOBLIN_PLIC].size);
+ 
++    /* UART */
+     serial_mm_init(system_memory, memmap[HOBGOBLIN_UART0].base + 0x1000, 2,
+                    qdev_get_gpio_in(DEVICE(s->plic), HOBGOBLIN_UART0_IRQ),
+                    115200, serial_hd(0), DEVICE_LITTLE_ENDIAN);
+ 
++    /* SPI */
++    s->spi = qdev_new(TYPE_XILINX_SPI);
++    ss = SYS_BUS_DEVICE(s->spi);
++    sysbus_realize_and_unref(ss, &error_fatal);
++    sysbus_mmio_map(ss, 0, memmap[HOBGOBLIN_SPI].base);
++    sysbus_connect_irq(ss, 0,
++                       qdev_get_gpio_in(DEVICE(s->plic), HOBGOBLIN_SPI_IRQ));
++
++    /* CLINT */
+     riscv_aclint_swi_create(memmap[HOBGOBLIN_CLINT].base, 0,
+         smp_cpus, false);
+     riscv_aclint_mtimer_create(memmap[HOBGOBLIN_CLINT].base +
+@@ -269,7 +289,18 @@ static void hobgoblin_board_init(MachineState *machine)
+         RISCV_ACLINT_DEFAULT_MTIMECMP, RISCV_ACLINT_DEFAULT_MTIME,
+         CLINT_TIMEBASE_FREQ, true);
+ 
+-     /* Load up the memory */
++    /* GPIO */
++    for (i=0; i<2; i++) {
++            s->gpio[i] = qdev_new(TYPE_XLNX_AXI_GPIO);
++            ss = SYS_BUS_DEVICE(s->gpio[i]);
++            sysbus_realize_and_unref(ss, &error_fatal);
++            sysbus_mmio_map(ss, 0, memmap[HOBGOBLIN_GPIO0 + i].base);
++            sysbus_connect_irq(ss, 0,
++                               qdev_get_gpio_in(DEVICE(s->plic),
++                                                HOBGOBLIN_GPIO0_IRQ + i));
++    }
++
++    /* Load up the memory */
+     entries = hobgoblin_parse_cfg("config.txt", &num_entries, id_entries);
+     if (!entries ||
+         hobgloblin_load_images(entries, num_entries, id_entries)) {
+diff --git a/include/hw/riscv/hobgoblin.h b/include/hw/riscv/hobgoblin.h
+index d6ff0348d1..e35f51467c 100644
+--- a/include/hw/riscv/hobgoblin.h
++++ b/include/hw/riscv/hobgoblin.h
+@@ -30,6 +30,8 @@ typedef struct {
+     /*< public >*/
+     RISCVHartArrayState soc;
+     DeviceState *plic;
++    DeviceState *spi;
++    DeviceState *gpio[2];
+ } HobgoblinState;
+ 
+ enum {
+@@ -37,6 +39,9 @@ enum {
+     HOBGOBLIN_PLIC,
+     HOBGOBLIN_CLINT,
+     HOBGOBLIN_UART0,
++    HOBGOBLIN_SPI,
++    HOBGOBLIN_GPIO0,
++    HOBGOBLIN_GPIO1,
+     HOBGOBLIN_DRAM
+ };
+ 
+-- 
+2.39.3
+
