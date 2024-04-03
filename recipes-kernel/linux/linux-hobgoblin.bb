@@ -35,14 +35,13 @@ SRC_URI = " \
     file://0009-riscv-hobgoblin-Enable-syn-cookies.patch \
     file://0010-net-emaclite-Use-xemaclite_-readl-writel-to-access-p.patch \
     file://0011-net-emaclite-Fix-xemaclite_aligned_read-of-trailing-.patch \
+    file://defconfig \
 "
 
 LINUX_VERSION ?= "6.5.0"
 LINUX_VERSION_EXTENSION:append = "-hobgoblin"
 
 KCONFIG_MODE="--alldefconfig"
-
-KBUILD_DEFCONFIG = "codasip-a70x-hobgoblin_defconfig"
 
 COMPATIBLE_MACHINE = "(hobgoblin)"
 
