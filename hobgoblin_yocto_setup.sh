@@ -59,6 +59,9 @@ DISTRO_FEATURES = "ipv4 nfs systemd usrmerge"
 IMAGE_FSTYPES="ext4 wic"
 IMAGE_NAME_SUFFIX=".sdcard"
 TOOLCHAIN = "clang"
+IMAGE_INSTALL:append = " strace gdb e2fsprogs-resize2fs e2fsprogs-tune2fs ldd perf"
+TOOLCHAIN:pn-perf = "gcc"
+TOOLCHAIN_HOST_TASK:append = " nativesdk-e2fsprogs nativesdk-e2fsprogs-resize2fs"
 EOF
 
 echo "To build an image run"
