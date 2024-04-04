@@ -7,6 +7,7 @@ inherit nopackages deploy
 
 INHIBIT_DEFAULT_DEPS = "1"
 COMPATIBLE_MACHINE = "hobgoblin"
+COMPATIBLE_HOST = ".*-elf"
 
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
