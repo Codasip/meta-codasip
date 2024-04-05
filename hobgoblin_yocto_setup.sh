@@ -13,20 +13,37 @@ BITBAKEIMAGE="core-image-minimal"
 #echo "Creating sstate directory"
 #mkdir -p ~/sstate/$MACHINE
 
-# Reconfigure dash on debian-like systems
-which aptitude > /dev/null 2>&1
-ret=$?
-if [ "$(readlink /bin/sh)" = "dash" -a "$ret" = "0" ]; then
-  sudo aptitude install expect -y
-  expect -c 'spawn sudo dpkg-reconfigure -freadline dash; send "n\n"; interact;'
-elif [ "${0##*/}" = "dash" ]; then
-  echo "dash as default shell is not supported"
-  return
+if [ "${0##*/}" = "dash" ]; then
+    echo "Error: dash as default shell is not supported" >&2
+    return
+    exit 1
+elif [ -n "$BASH_SOURCE" ]; then
+    THIS_SCRIPT=$BASH_SOURCE
+elif [ -n "$ZSH_NAME" ]; then
+    THIS_SCRIPT=$0
+else
+    THIS_SCRIPT="$(pwd)/meta-codasip/hobgoblin_yocto_setup.sh"
+    if [ ! -e "$THIS_SCRIPT" ]; then
+	echo "Error: $THIS_SCRIPT doesn't exist!" >&2
+	echo "Please run this script in the same directory as meta-codasip." >&2
+	return
+	exit 1
+    fi
 fi
+
 # bootstrap OE
 echo "Init OE"
-base=$(dirname -- $(dirname -- $(readlink -f -- "$0" )))
+base=$(dirname -- $(dirname -- $(readlink -f -- "$THIS_SCRIPT" )))
 poky_init=$base/poky/oe-init-build-env
+
+if [ ! -f $poky_init ] ; then
+    echo "Error: Unable to find $poky_init relative to hobgoblin_yocto_setup.sh" >&2
+    echo "Make sure the poky and meta-codasip directories are present" >&2
+    echo "and in the current directory?" >&2
+    return
+    exit 1
+fi
+
 export BASH_SOURCE=$poky_init
 . $poky_init $DIR
 
