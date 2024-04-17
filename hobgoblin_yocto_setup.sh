@@ -55,6 +55,8 @@ export BASH_SOURCE=$poky_init
 echo "Adding layers"
 bitbake-layers add-layer ${base}/meta-codasip
 bitbake-layers add-layer ${base}/meta-clang
+bitbake-layers add-layer ${base}/meta-openembedded/meta-oe
+bitbake-layers add-layer ${base}/meta-openembedded/meta-networking
 
 # fix the configuration
 echo "Creating auto.conf"
@@ -76,10 +78,13 @@ DISTRO_FEATURES = "ipv4 nfs systemd usrmerge"
 IMAGE_FSTYPES="ext4 wic"
 IMAGE_NAME_SUFFIX=".sdcard"
 TOOLCHAIN = "clang"
-EXTRA_IMAGE_FEATURES = "debug-tweaks package-management"
-IMAGE_INSTALL:append = " strace gdb e2fsprogs-resize2fs e2fsprogs-tune2fs ldd perf"
+EXTRA_IMAGE_FEATURES = "debug-tweaks tools-debug tools-sdk nfs-client package-management"
+IMAGE_INSTALL:append = " e2fsprogs-resize2fs e2fsprogs-tune2fs"
 TOOLCHAIN:pn-perf = "gcc"
 TOOLCHAIN_HOST_TASK:append = " nativesdk-e2fsprogs nativesdk-e2fsprogs-resize2fs"
+# From meta-openembedded:
+IMAGE_INSTALL:append = " mdio-tools iperf3 stressapptest mg"
+RDEPENDS:mdio-tools:remove = "kernel-module-mdio-netlink"
 EOF
 
 echo "To build an image run"
