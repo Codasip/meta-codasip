@@ -66,6 +66,7 @@ if [ -e $CONFFILE ]; then
 fi
 cat <<EOF > $CONFFILE
 MACHINE ?= "${MACHINE}"
+DISTRO ?= "codasip-poky"
 USER_CLASSES ?= "buildstats buildhistory buildstats-summary"
 
 # Only needed if we use OE directly, not when using poky
