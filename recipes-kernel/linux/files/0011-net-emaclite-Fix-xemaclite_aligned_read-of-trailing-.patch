@@ -1,7 +1,7 @@
-From 9dbda27017e7640c80e2aa9f3501aff12d39ba5d Mon Sep 17 00:00:00 2001
+From ea6eb1de99118f66ef3485609b84623f836f8c14 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Mon, 25 Mar 2024 21:15:10 +0000
-Subject: [PATCH 11/11] net: emaclite: Fix xemaclite_aligned_read() of trailing
+Subject: [PATCH 11/15] net: emaclite: Fix xemaclite_aligned_read() of trailing
  bytes
 
 The final loop in xemaclite_aligned_read() to copy upto three
@@ -13,7 +13,7 @@ Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index 6de977028c3b..f5902330585b 100644
+index 22812cb33738..272062e72da6 100644
 --- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
 +++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
 @@ -273,7 +273,7 @@ static void xemaclite_aligned_read(const void __iomem *reg, u8 *dest_ptr,

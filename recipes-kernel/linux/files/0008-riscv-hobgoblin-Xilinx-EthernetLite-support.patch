@@ -1,7 +1,7 @@
-From a41b6b1b9faca2def55d57b3f9cdfbadb4109202 Mon Sep 17 00:00:00 2001
+From 96bd4737326f53d97473fc429721f1b70f5312db Mon Sep 17 00:00:00 2001
 From: David McKay <david.mckay@codasip.com>
 Date: Tue, 19 Mar 2024 13:23:39 +0000
-Subject: [PATCH 08/11] riscv: hobgoblin: Xilinx EthernetLite support
+Subject: [PATCH 08/15] riscv: hobgoblin: Xilinx EthernetLite support
 
 This patch add in support for the Xilinx EthernetLite IP on the
 GenesysII board. This is a very simple Ethernet controller. It does not
@@ -74,10 +74,10 @@ index 000000000000..1cbe38fe04e0
 +	};
 +};
 diff --git a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
-index 56cffa4c5e93..40b1c6ae68a4 100644
+index c7d97cbbf52e..7e2491e8fbe9 100644
 --- a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
 +++ b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
-@@ -52,6 +52,8 @@ CONFIG_BLK_DEV_LOOP=y
+@@ -54,6 +54,8 @@ CONFIG_BLK_DEV_LOOP=y
  CONFIG_VIRTIO_BLK=y
  CONFIG_NETDEVICES=y
  CONFIG_VIRTIO_NET=y

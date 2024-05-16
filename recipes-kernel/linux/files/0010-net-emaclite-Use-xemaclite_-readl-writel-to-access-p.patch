@@ -1,7 +1,7 @@
-From deefa63a58298143618496c35294e7f634632d37 Mon Sep 17 00:00:00 2001
+From f6cdf9a3793e891c017b08883fbdde1642a263cb Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Mon, 25 Mar 2024 21:13:27 +0000
-Subject: [PATCH 10/11] net: emaclite: Use xemaclite_{readl,writel} to access
+Subject: [PATCH 10/15] net: emaclite: Use xemaclite_{readl,writel} to access
  ping/pong buffers
 
 The memory mapped ping/pong buffers were previously being accessed
@@ -20,7 +20,7 @@ Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
  1 file changed, 17 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index ad2c30d9a482..6de977028c3b 100644
+index 765aa516aada..22812cb33738 100644
 --- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
 +++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
 @@ -191,38 +191,31 @@ static void xemaclite_disable_interrupts(struct net_local *drvdata)

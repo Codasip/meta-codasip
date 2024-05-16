@@ -1,0 +1,44 @@
+From 314020a8c4f8e22c75acef317472282e5c780a10 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Wed, 17 Apr 2024 18:59:49 +0100
+Subject: [PATCH 12/15] riscv: configs: hobgoblin: Enable NFS support
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ arch/riscv/configs/codasip-a70x-hobgoblin_defconfig | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
+index 8f3e97d40737..9827c6d41d4e 100644
+--- a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
++++ b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
+@@ -80,6 +80,7 @@ CONFIG_PINCTRL=y
+ CONFIG_GPIOLIB=y
+ CONFIG_GPIO_XILINX=y
+ CONFIG_POWER_RESET=y
++CONFIG_POWER_RESET_GPIO_RESTART=y
+ CONFIG_POWER_RESET_SYSCON=y
+ CONFIG_POWER_RESET_SYSCON_POWEROFF=y
+ CONFIG_POWER_SUPPLY=y
+@@ -114,9 +115,12 @@ CONFIG_PROC_CHILDREN=y
+ CONFIG_TMPFS=y
+ CONFIG_TMPFS_POSIX_ACL=y
+ CONFIG_HUGETLBFS=y
++CONFIG_NFS_FS=y
++CONFIG_NFS_V4=y
++CONFIG_ROOT_NFS=y
++# CONFIG_NFS_DISABLE_UDP_SUPPORT is not set
+ CONFIG_NLS_CODEPAGE_437=y
+ CONFIG_NLS_ISO8859_1=m
+-CONFIG_KEYS=y
+ CONFIG_CRYPTO_RSA=y
+ CONFIG_CRYPTO_AES=y
+ CONFIG_CRYPTO_BLAKE2B=m
+@@ -151,4 +155,3 @@ CONFIG_RCU_EQS_DEBUG=y
+ # CONFIG_FTRACE is not set
+ # CONFIG_RUNTIME_TESTING_MENU is not set
+ CONFIG_MEMTEST=y
+-CONFIG_POWER_RESET_GPIO_RESTART=y
+-- 
+2.39.3
+

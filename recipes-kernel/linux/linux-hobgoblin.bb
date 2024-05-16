@@ -17,13 +17,13 @@ KERNEL_VERSION_SANITY_SKIP = "1"
 
 # We use the revision in order to avoid having to fetch it from the
 # repo during parse
-# This corresponds to tag: v6.5
-SRCREV = "2dde18cd1d8fac735875f2e4987f11817cc0bc2c"
+# This corresponds to tag: v6.8.9
+SRCREV = "f3d61438b613b87afb63118bea6fb18c50ba7a6b"
 
 PV = "6.5+git"
 
 SRC_URI = " \
-    git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=master \
+    git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=linux-6.8.y \
     file://0001-riscv-Add-the-Codasip-SoC-family-Kconfig-option.patch \
     file://0002-riscv-dts-codasip-Add-Hobgoblin-device-tree.patch \
     file://0003-riscv-dts-Add-codasip-devicetree.patch \
@@ -35,6 +35,10 @@ SRC_URI = " \
     file://0009-riscv-hobgoblin-Enable-syn-cookies.patch \
     file://0010-net-emaclite-Use-xemaclite_-readl-writel-to-access-p.patch \
     file://0011-net-emaclite-Fix-xemaclite_aligned_read-of-trailing-.patch \
+    file://0012-riscv-configs-hobgoblin-Enable-NFS-support.patch \
+    file://0013-riscv-Fix-linear-mapping-checks-for-non-contiguous-m.patch \
+    file://0014-riscv-Remove-redundant-restriction-on-memory-size.patch \
+    file://0015-riscv-configs-hobgoblin-Convert-isa-detection-to-new.patch \
     file://defconfig \
 "
 

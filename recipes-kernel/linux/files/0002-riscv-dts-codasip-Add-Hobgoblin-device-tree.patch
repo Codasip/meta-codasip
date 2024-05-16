@@ -1,7 +1,7 @@
-From 919a837b2151765871a01f6b67a92ea3e5ec90b6 Mon Sep 17 00:00:00 2001
+From 87bd80dc22b14a53ed90fbedfd77c1bd082648eb Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Mon, 15 Jan 2024 13:08:18 +0000
-Subject: [PATCH 02/11] riscv: dts: codasip: Add Hobgoblin device tree
+Subject: [PATCH 02/15] riscv: dts: codasip: Add Hobgoblin device tree
 
 Add an initial device tree for the Hobgoblin FPGA platform which
 includes a Codasip A730 CPU.

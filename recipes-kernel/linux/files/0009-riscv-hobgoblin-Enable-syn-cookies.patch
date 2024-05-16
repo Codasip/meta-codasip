@@ -1,7 +1,7 @@
-From dd3b6ee369bfeac1fc8ce2ef988df57ddb2a2af5 Mon Sep 17 00:00:00 2001
+From 38ee31a6ad3e8c5b0943fed3d3ad64810df34046 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Fri, 22 Mar 2024 11:44:19 +0000
-Subject: [PATCH 09/11] riscv: hobgoblin: Enable syn cookies
+Subject: [PATCH 09/15] riscv: hobgoblin: Enable syn cookies
 
 Reduces noise while the system boots.
 
@@ -11,10 +11,10 @@ Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
-index 2fd301b2acc4..6fb10b0448f0 100644
+index 7e2491e8fbe9..8f3e97d40737 100644
 --- a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
 +++ b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
-@@ -39,6 +39,7 @@ CONFIG_IP_PNP=y
+@@ -41,6 +41,7 @@ CONFIG_IP_PNP=y
  CONFIG_IP_PNP_DHCP=y
  CONFIG_IP_PNP_BOOTP=y
  CONFIG_IP_PNP_RARP=y

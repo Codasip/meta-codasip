@@ -1,7 +1,7 @@
-From 02a72889450d5b751ebd7fcbd828f880b6b9c898 Mon Sep 17 00:00:00 2001
+From 6c298520d9d75a66fc6dc1c299bf66be329c8d87 Mon Sep 17 00:00:00 2001
 From: Samuel Obuch <samuel.obuch@codasip.com>
 Date: Sat, 2 Mar 2024 00:42:59 +0100
-Subject: [PATCH 07/11] riscv: hobgoblin: add configuration for gpio-restart
+Subject: [PATCH 07/15] riscv: hobgoblin: add configuration for gpio-restart
 
 Enables reboot command, tested on genesys2
 ---
@@ -24,10 +24,10 @@ index f26c6e0cde31..767618b3c743 100644
 +	};
  };
 diff --git a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
-index 56cffa4c5e93..ed552618b635 100644
+index 525fb4e6c7e5..c7d97cbbf52e 100644
 --- a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
 +++ b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
-@@ -143,3 +143,4 @@ CONFIG_RCU_EQS_DEBUG=y
+@@ -148,3 +148,4 @@ CONFIG_RCU_EQS_DEBUG=y
  # CONFIG_FTRACE is not set
  # CONFIG_RUNTIME_TESTING_MENU is not set
  CONFIG_MEMTEST=y

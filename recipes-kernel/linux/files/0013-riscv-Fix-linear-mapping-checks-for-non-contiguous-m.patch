@@ -1,0 +1,120 @@
+From 76f2c7ed1d6d11627d88086a6e5ae793d892a9c3 Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Tue, 14 May 2024 18:50:51 +0100
+Subject: [PATCH 13/15] riscv: Fix linear mapping checks for non-contiguous
+ memory regions
+
+The kernel currently checks to ensure that memory which would lie
+outside of the linear mapping is not used. However those checks use
+memory_limit, which is used to implement the mem= kernel command line
+option, and so limit the amount of memory. When RAM is made up of
+two or more banks of non-contiguous memory this check is incorrect.
+
+Two changes are made here:
+ - add a call in setup_bootmem() to memblock_cap_memory_range() which
+   will cause any memory which falls outside the linear mapping to be
+   removed from the memory map.
+ - remove the check in create_linear_mapping_page_table() which was
+   intended to remove memory which is outside the liner mapping based
+   on memory_limit, as it is no longer needed. Note a check for
+   mapping more memory than memory_limit (to implement mem=) is
+   unnecessary because of the previous call to
+   memblock_enforce_memory_limit().
+
+This issue was seen when booting on a SV39 platform with two memory
+banks:
+  0x00,80000000 1GiB
+  0x20,00000000 32GiB
+In this case the linear mapping is limited to 124GiB, so the lower block
+of RAM will be mapped at PAGE_OFFSET, and the upper block straddles the
+top of the linear mapping.
+
+This causes the following Oops:
+[    0.000000] memblock_add: [0x0000000080000000-0x00000000bfffffff] early_init_dt_add_memory_arch+0x4a/0x52
+[    0.000000] memblock_add: [0x0000002000000000-0x00000023ffffffff] early_init_dt_add_memory_arch+0x4a/0x52
+...
+[    0.000000] memblock_enforce_memory_limit: limit 1f00000000
+...
+[    0.000000] memblock_alloc_try_nid: 23716 bytes align=0x8 nid=-1 from=0x0000000000000000 max_addr=0x0000000000000000 early_init_dt_alloc_memory_arch+0x1e/0x48
+[    0.000000] memblock_reserve: [0x00000023ffff7358-0x00000023ffffcffb] memblock_alloc_range_nid+0xb8/0x132
+[    0.000000] Unable to handle kernel paging request at virtual address fffffffb7fff7358
+[    0.000000] Oops [#1]
+[    0.000000] Modules linked in:
+[    0.000000] CPU: 0 PID: 0 Comm: swapper Not tainted 6.8.9-g445427e324d4-dirty #256
+[    0.000000] Hardware name: codasip,a70x (DT)
+[    0.000000] epc : __memset+0x90/0x100
+[    0.000000]  ra : memblock_alloc_try_nid+0x74/0x84
+[    0.000000] epc : ffffffff805caa50 ra : ffffffff80612a50 sp : ffffffff80e03d60
+[    0.000000]  gp : ffffffff80ec7970 tp : ffffffff80e0bd40 t0 : fffffffb7fff72f8
+[    0.000000]  t1 : 00000023ffffd000 t2 : 5f6b636f6c626d65 s0 : ffffffff80e03da0
+[    0.000000]  s1 : 0000000000005ca4 a0 : fffffffb7fff7358 a1 : 0000000000000000
+[    0.000000]  a2 : 0000000000005ca4 a3 : fffffffb7fffcff8 a4 : 0000000000000030
+[    0.000000]  a5 : ffffffff805caa50 a6 : 0000000000005ca4 a7 : 0000000000000030
+[    0.000000]  s2 : fffffffb7fff7358 s3 : ffffffffffffffff s4 : 0000000000000000
+[    0.000000]  s5 : ffffffff80620f26 s6 : 0000000000000000 s7 : 0000000000000001
+[    0.000000]  s8 : 0000000000002000 s9 : 00000000800226d0 s10: 0000000000000000
+[    0.000000]  s11: 0000000000000000 t3 : ffffffff8080a830 t4 : ffffffff8080a830
+[    0.000000]  t5 : ffffffff8080a830 t6 : ffffffff8080a848
+[    0.000000] status: 0000000200000100 badaddr: ffffff fb7fff7358 cause: 000000000000000f
+[    0.000000] [<ffffffff805caa50>] __memset+0x90/0x100
+[    0.000000] [<ffffffff80620f44>] early_init_dt_alloc_memory_arch+0x1e/0x48
+[    0.000000] [<ffffffff804268fc>] __unflatten_device_tree+0x52/0x114
+[    0.000000] [<ffffffff80622076>] unflatten_device_tree+0x2c/0x44
+[    0.000000] [<ffffffff80603a22>] setup_arch+0xd4/0x578
+[    0.000000] [<ffffffff80600714>] start_kernel+0x6c/0x754
+[    0.000000] Code: bc23 02b2 b023 04b2 b423 04b2 b823 04b2 bc23 04b2 (b023) 06b2
+[    0.000000] ---[ end trace 0000000000000000 ]---
+
+The problem is that memblock (unaware that some physical memory cannot
+be used) has allocated memory which is outside the linear mapping region.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+Fixes: c99127c45248 ("riscv: Make sure the linear mapping does not use the kernel mapping")
+---
+ arch/riscv/mm/init.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
+
+diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
+index 0c00efc75643..66b65efc0163 100644
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -219,8 +219,6 @@ static void __init setup_bootmem(void)
+ 	 */
+ 	memblock_reserve(vmlinux_start, vmlinux_end - vmlinux_start);
+ 
+-	phys_ram_end = memblock_end_of_DRAM();
+-
+ 	/*
+ 	 * Make sure we align the start of the memory on a PMD boundary so that
+ 	 * at worst, we map the linear mapping with PMD mappings.
+@@ -235,6 +233,18 @@ static void __init setup_bootmem(void)
+ 	if (IS_ENABLED(CONFIG_64BIT) && IS_ENABLED(CONFIG_MMU))
+ 		kernel_map.va_pa_offset = PAGE_OFFSET - phys_ram_base;
+ 
++	/*
++	 * The size of the linear page mapping may restrict the amount of
++	 * usable RAM.
++	 */
++	if (IS_ENABLED(CONFIG_64BIT)) {
++		max_mapped_addr = __pa(PAGE_OFFSET) + KERN_VIRT_SIZE;
++		memblock_cap_memory_range(phys_ram_base,
++					  max_mapped_addr - phys_ram_base);
++	}
++
++	phys_ram_end = memblock_end_of_DRAM();
++
+ 	/*
+ 	 * memblock allocator is not aware of the fact that last 4K bytes of
+ 	 * the addressable memory can not be mapped because of IS_ERR_VALUE
+@@ -1267,8 +1277,6 @@ static void __init create_linear_mapping_page_table(void)
+ 		if (start <= __pa(PAGE_OFFSET) &&
+ 		    __pa(PAGE_OFFSET) < end)
+ 			start = __pa(PAGE_OFFSET);
+-		if (end >= __pa(PAGE_OFFSET) + memory_limit)
+-			end = __pa(PAGE_OFFSET) + memory_limit;
+ 
+ 		create_linear_mapping_range(start, end, 0);
+ 	}
+-- 
+2.39.3
+

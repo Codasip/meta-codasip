@@ -1,7 +1,7 @@
-From e4d22b54f396b8a3ed9d4bd2b1e312bb6a8754fe Mon Sep 17 00:00:00 2001
+From 8138f7d822e2d1d289cc6ea11c2207c90d6c9d8c Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Tue, 16 Jan 2024 11:31:57 +0000
-Subject: [PATCH 04/11] riscv: configs: hobgoblin: Add a Codasip Hobgoblin
+Subject: [PATCH 04/15] riscv: configs: hobgoblin: Add a Codasip Hobgoblin
  config
 
 Add a config for the Codasip A70x Hobgoblin FPGA platform. This is
@@ -9,16 +9,16 @@ somewhat cut down to remove functionality we can't support yet.
 
 Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
 ---
- .../configs/codasip-a70x-hobgoblin_defconfig  | 138 ++++++++++++++++++
- 1 file changed, 138 insertions(+)
+ .../configs/codasip-a70x-hobgoblin_defconfig  | 144 ++++++++++++++++++
+ 1 file changed, 144 insertions(+)
  create mode 100644 arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
 
 diff --git a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
 new file mode 100644
-index 000000000000..6e7458992d28
+index 000000000000..a7d8bc4ddfde
 --- /dev/null
 +++ b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
-@@ -0,0 +1,138 @@
+@@ -0,0 +1,144 @@
 +CONFIG_SYSVIPC=y
 +CONFIG_POSIX_MQUEUE=y
 +CONFIG_AUDIT=y
@@ -38,6 +38,8 @@ index 000000000000..6e7458992d28
 +CONFIG_SMP=y
 +CONFIG_HOTPLUG_CPU=y
 +# CONFIG_RISCV_ISA_V is not set
++CONFIG_RISCV_EFFICIENT_UNALIGNED_ACCESS=y
++CONFIG_HZ_100=y
 +# CONFIG_COMPAT is not set
 +# CONFIG_EFI is not set
 +# CONFIG_SUSPEND is not set
@@ -75,10 +77,14 @@ index 000000000000..6e7458992d28
 +# CONFIG_ETHERNET is not set
 +# CONFIG_WLAN is not set
 +CONFIG_INPUT_MOUSEDEV=y
-+CONFIG_VT_HW_CONSOLE_BINDING=y
++CONFIG_KEYBOARD_GPIO=y
++# CONFIG_VT is not set
++# CONFIG_LEGACY_PTYS is not set
++# CONFIG_LEGACY_TIOCSTI is not set
 +CONFIG_SERIAL_8250=y
++# CONFIG_SERIAL_8250_DEPRECATED_OPTIONS is not set
++# CONFIG_SERIAL_8250_16550A_VARIANTS is not set
 +CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_8250_DW=y
 +CONFIG_SERIAL_OF_PLATFORM=y
 +CONFIG_SERIAL_SIFIVE=y
 +CONFIG_SERIAL_SIFIVE_CONSOLE=y
@@ -95,7 +101,6 @@ index 000000000000..6e7458992d28
 +CONFIG_POWER_RESET_SYSCON_POWEROFF=y
 +CONFIG_POWER_SUPPLY=y
 +# CONFIG_HWMON is not set
-+# CONFIG_VGA_CONSOLE is not set
 +# CONFIG_HID_SUPPORT is not set
 +# CONFIG_USB_SUPPORT is not set
 +CONFIG_MMC=y
@@ -136,6 +141,7 @@ index 000000000000..6e7458992d28
 +CONFIG_PRINTK_TIME=y
 +CONFIG_DEBUG_FS=y
 +CONFIG_DEBUG_PAGEALLOC=y
++CONFIG_PTDUMP_DEBUGFS=y
 +CONFIG_SCHED_STACK_END_CHECK=y
 +CONFIG_DEBUG_VM=y
 +CONFIG_DEBUG_VM_PGFLAGS=y

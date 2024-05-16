@@ -1,7 +1,7 @@
-From 3a23346f04de096aa502eb08319ba3b6368c21ea Mon Sep 17 00:00:00 2001
+From 1e210d3bfe32f40fb7352ea1ef376196ffcc94f9 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Thu, 29 Feb 2024 14:49:10 +0000
-Subject: [PATCH 05/11] riscv: dts: codasip: Add Hobgoblin qemu support
+Subject: [PATCH 05/15] riscv: dts: codasip: Add Hobgoblin qemu support
 
 Add support for a variant of the Hobgoblin which can be run on the
 Hobgoblin qemu platform, which adds virtio devices.
@@ -94,10 +94,10 @@ index c6cc574a307c..f26c6e0cde31 100644
  			/* Upstream interrupts - where are they connected */
  			/* Per core pairs: machine external interrupt, supervisor external interrupt */
 diff --git a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
-index 6e7458992d28..dee405fda3a7 100644
+index a7d8bc4ddfde..3bdfb13b3800 100644
 --- a/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
 +++ b/arch/riscv/configs/codasip-a70x-hobgoblin_defconfig
-@@ -51,7 +51,7 @@ CONFIG_DEVTMPFS_MOUNT=y
+@@ -53,7 +53,7 @@ CONFIG_DEVTMPFS_MOUNT=y
  CONFIG_BLK_DEV_LOOP=y
  CONFIG_VIRTIO_BLK=y
  CONFIG_NETDEVICES=y
@@ -105,8 +105,8 @@ index 6e7458992d28..dee405fda3a7 100644
 +CONFIG_VIRTIO_NET=y
  # CONFIG_WLAN is not set
  CONFIG_INPUT_MOUSEDEV=y
- CONFIG_VT_HW_CONSOLE_BINDING=y
-@@ -66,6 +66,7 @@ CONFIG_HW_RANDOM=y
+ CONFIG_KEYBOARD_GPIO=y
+@@ -72,6 +72,7 @@ CONFIG_HW_RANDOM=y
  CONFIG_HW_RANDOM_VIRTIO=y
  CONFIG_SPI=y
  CONFIG_SPI_XILINX=y
@@ -114,7 +114,7 @@ index 6e7458992d28..dee405fda3a7 100644
  CONFIG_PINCTRL=y
  CONFIG_GPIOLIB=y
  CONFIG_GPIO_XILINX=y
-@@ -83,7 +84,7 @@ CONFIG_RTC_CLASS=y
+@@ -88,7 +89,7 @@ CONFIG_RTC_CLASS=y
  # CONFIG_RTC_NVMEM is not set
  CONFIG_RTC_DRV_GOLDFISH=y
  CONFIG_SYNC_FILE=y

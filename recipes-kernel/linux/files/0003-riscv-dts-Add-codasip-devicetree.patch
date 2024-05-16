@@ -1,7 +1,7 @@
-From 8568845228b16f3c362bd36c999f1113537bd0c4 Mon Sep 17 00:00:00 2001
+From 139d7c2c9f8f9f21304e2872f532bf7560d7cf07 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Thu, 18 Jan 2024 11:43:11 +0000
-Subject: [PATCH 03/11] riscv: dts: Add codasip devicetree
+Subject: [PATCH 03/15] riscv: dts: Add codasip devicetree
 
 Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
  1 file changed, 1 insertion(+)
 
 diff --git a/arch/riscv/boot/dts/Makefile b/arch/riscv/boot/dts/Makefile
-index f60a280abb15..cc6f2b0aaae4 100644
+index 72030fd727af..b03fa5a57bb1 100644
 --- a/arch/riscv/boot/dts/Makefile
 +++ b/arch/riscv/boot/dts/Makefile
 @@ -1,6 +1,7 @@
