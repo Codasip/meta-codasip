@@ -1,7 +1,7 @@
-From 9cd2757fc3de9696d4f451a950eba7252366f46e Mon Sep 17 00:00:00 2001
+From 94e6fe5597adb74991d2c706d952f90e7514f108 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Thu, 21 Mar 2024 16:11:21 +0000
-Subject: [PATCH 16/17] net: xilinx_ethlite: Add PHY emulation
+Subject: [PATCH 11/15] net: xilinx_ethlite: Add PHY emulation
 
 Add code to emulate the MDIO_... registers and communicate with a PHY.
 Copy the exiting PHY code from the xilinx_axienet.c, although keep
@@ -15,7 +15,7 @@ Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
  create mode 100644 hw/net/xilinx_ethlite_phy.c
 
 diff --git a/hw/net/xilinx_ethlite.c b/hw/net/xilinx_ethlite.c
-index 89f4f3b254..2b40f52586 100644
+index 989afaf037..e98ef229f6 100644
 --- a/hw/net/xilinx_ethlite.c
 +++ b/hw/net/xilinx_ethlite.c
 @@ -31,8 +31,17 @@
@@ -96,9 +96,9 @@ index 89f4f3b254..2b40f52586 100644
          case R_TX_LEN0:
          case R_TX_LEN1:
          case R_TX_GIE0:
-@@ -237,6 +278,9 @@ static void xilinx_ethlite_realize(DeviceState *dev, Error **errp)
-     s->nic = qemu_new_nic(&net_xilinx_ethlite_info, &s->conf,
-                           object_get_typename(OBJECT(dev)), dev->id, s);
+@@ -238,6 +279,9 @@ static void xilinx_ethlite_realize(DeviceState *dev, Error **errp)
+                           object_get_typename(OBJECT(dev)), dev->id,
+                           &dev->mem_reentrancy_guard, s);
      qemu_format_nic_info_str(qemu_get_queue(s->nic), s->conf.macaddr.a);
 +
 +    tdk_init(&s->phy);
@@ -106,7 +106,7 @@ index 89f4f3b254..2b40f52586 100644
  }
  
  static void xilinx_ethlite_init(Object *obj)
-@@ -251,6 +295,7 @@ static void xilinx_ethlite_init(Object *obj)
+@@ -252,6 +296,7 @@ static void xilinx_ethlite_init(Object *obj)
  }
  
  static Property xilinx_ethlite_properties[] = {

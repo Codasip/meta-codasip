@@ -1,0 +1,28 @@
+From 90388586dcf2a0a0afc36d4303fd3247efa25c0f Mon Sep 17 00:00:00 2001
+From: Stuart Menefy <stuart.menefy@codasip.com>
+Date: Thu, 16 May 2024 11:30:57 +0100
+Subject: [PATCH 15/15] hw/riscv/hobgoblin: Increase size of ROM to 128K
+
+Increase to match the Genesys 2 FPGA platform.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
+---
+ hw/riscv/hobgoblin.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/hw/riscv/hobgoblin.c b/hw/riscv/hobgoblin.c
+index 55a3c7de2f..24c85cd3fe 100644
+--- a/hw/riscv/hobgoblin.c
++++ b/hw/riscv/hobgoblin.c
+@@ -62,7 +62,7 @@ typedef struct {
+ static const memmapEntry_t memmap[] = {
+     [HOBGOBLIN_MROM] =     {     0x1000,      0x100,
+         "riscv.hobgoblin.mrom"},
+-    [HOBGOBLIN_BOOT_ROM] = { 0x10000000, 0x00010000,
++    [HOBGOBLIN_BOOT_ROM] = { 0x10000000, 0x00020000,
+         "riscv.hobgoblin.boot.rom"},
+     [HOBGOBLIN_BOOT_RAM] = { 0x10400000, 0x00008000,
+         "riscv.hobgoblin.boot.ram"},
+-- 
+2.39.3
+

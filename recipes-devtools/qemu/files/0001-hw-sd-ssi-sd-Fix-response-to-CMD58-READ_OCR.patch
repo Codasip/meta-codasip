@@ -1,7 +1,7 @@
-From 50ca0f18d9a6288532c31cecf7c55fd5fd9adfa4 Mon Sep 17 00:00:00 2001
+From 802fccae2cef6c189d0e65339577feccc7403bdb Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Tue, 23 Jan 2024 10:42:23 +0000
-Subject: [PATCH 10/17] hw/sd/ssi-sd: Fix response to CMD58 (READ_OCR)
+Subject: [PATCH 01/15] hw/sd/ssi-sd: Fix response to CMD58 (READ_OCR)
 
 FSBL expects the response to CMD58 (READ_OCR) to have the MSB set to 0
 (indicating that the card is not idle). However qemu was returning 1
@@ -14,7 +14,7 @@ Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
  1 file changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/hw/sd/ssi-sd.c b/hw/sd/ssi-sd.c
-index 167c03b780..cb5d98a2ea 100644
+index a6cc1ad6c8..0b40cf98e9 100644
 --- a/hw/sd/ssi-sd.c
 +++ b/hw/sd/ssi-sd.c
 @@ -180,7 +180,20 @@ static uint32_t ssi_sd_transfer(SSIPeripheral *dev, uint32_t val)
