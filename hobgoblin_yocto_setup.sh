@@ -80,6 +80,7 @@ PACKAGECONFIG:remove:pn-qemu-system-native = "xen"
 PACKAGECONFIG:append:pn-qemu-system-native = "vhost virtfs"
 IMAGE_FSTYPES="ext4 wic"
 IMAGE_NAME_SUFFIX=".sdcard"
+EXTRA_IMAGECMD:ext4 = "-i 4096 -O ^orphan_file"
 TOOLCHAIN_HOST_TASK:append = " nativesdk-e2fsprogs nativesdk-e2fsprogs-resize2fs nativesdk-e2fsprogs-tune2fs nativesdk-u-boot-tools"
 EOF
 
