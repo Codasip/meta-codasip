@@ -24,10 +24,12 @@ IMAGE_INSTALL = "\
 
 # From meta-openembedded
 IMAGE_INSTALL += "\
+    libgpiod \
     iperf3 \
     mdio-tools \
     mg \
     stressapptest \
+    tcpdump \
 "
 RDEPENDS:mdio-tools:remove = "kernel-module-mdio-netlink"
 
