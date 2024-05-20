@@ -29,6 +29,8 @@ SRC_URI = " \
     file://0013-hw-intc-sifive_plic-Add-edge-detection-for-level-int.patch \
     file://0014-hw-riscv-hobgoblin-Add-support-for-proFPGA-platform.patch \
     file://0015-hw-riscv-hobgoblin-Increase-size-of-ROM-to-128K.patch \
+    file://0016-hw-riscv-hobgoblin-Add-support-for-Xilinx-AXI-Ethern.patch \
+    file://0017-target-riscv-Fix-pmu_mask-and-pmp-default-for-Codasi.patch \
     file://fixedmeson.patch \
     file://powerpc_rom.bin \
     file://qemu-guest-agent.init \

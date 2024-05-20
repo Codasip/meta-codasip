@@ -1,7 +1,7 @@
 From 32115e9aef776b1e46c3113d0df04fb8409a56ff Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Sun, 31 Dec 2023 18:30:17 +0000
-Subject: [PATCH 03/15] hw/gpio: Import Xilinx AXI GPIO
+Subject: [PATCH 03/17] hw/gpio: Import Xilinx AXI GPIO
 
 Import the Xilinx AXI GPIO code from the Xilinx qemu tree as of
 commit f28512b37 ("Merge commit '36eae3a732' into merge").

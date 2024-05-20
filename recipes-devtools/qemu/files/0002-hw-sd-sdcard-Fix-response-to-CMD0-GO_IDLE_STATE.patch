@@ -1,7 +1,7 @@
 From 5a8af46874795632679a35be1cd3d73d8b338cde Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Tue, 23 Jan 2024 11:03:31 +0000
-Subject: [PATCH 02/15] hw/sd/sdcard: Fix response to CMD0 (GO_IDLE_STATE)
+Subject: [PATCH 02/17] hw/sd/sdcard: Fix response to CMD0 (GO_IDLE_STATE)
 
 This fixes a problem seen when U-Boot is loaded by FSBL:
  - FSBL has just read data from the SD card, leaving the card in

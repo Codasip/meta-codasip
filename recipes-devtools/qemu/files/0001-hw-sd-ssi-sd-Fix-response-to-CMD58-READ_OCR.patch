@@ -1,7 +1,7 @@
 From 802fccae2cef6c189d0e65339577feccc7403bdb Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Tue, 23 Jan 2024 10:42:23 +0000
-Subject: [PATCH 01/15] hw/sd/ssi-sd: Fix response to CMD58 (READ_OCR)
+Subject: [PATCH 01/17] hw/sd/ssi-sd: Fix response to CMD58 (READ_OCR)
 
 FSBL expects the response to CMD58 (READ_OCR) to have the MSB set to 0
 (indicating that the card is not idle). However qemu was returning 1

@@ -1,7 +1,7 @@
-From 1d0a10db41a25aa7eb171d0c9c4b64a2b1a0a165 Mon Sep 17 00:00:00 2001
+From ac615438b6287026206276ab90544b9e95388c00 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Wed, 15 May 2024 18:24:40 +0100
-Subject: [PATCH 14/15] hw/riscv/hobgoblin: Add support for proFPGA platform
+Subject: [PATCH 14/17] hw/riscv/hobgoblin: Add support for proFPGA platform
 
 Currently two versions of the Hobgoblin platform are supported, the
 original one using the Genesys 2 hardware, and now the proFPGA. Add an

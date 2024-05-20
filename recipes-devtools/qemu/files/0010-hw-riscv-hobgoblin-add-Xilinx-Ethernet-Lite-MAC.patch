@@ -1,7 +1,7 @@
-From 8707a0968b3921abb0d3f0ab6de4818d9d4ac390 Mon Sep 17 00:00:00 2001
+From 42902f8c7a0757975ef2a68db46f6d8f7ae20060 Mon Sep 17 00:00:00 2001
 From: Axel Heider <axel.heider@codasip.com>
 Date: Wed, 20 Mar 2024 19:45:33 +0000
-Subject: [PATCH 10/15] hw/riscv/hobgoblin: add Xilinx Ethernet Lite MAC
+Subject: [PATCH 10/17] hw/riscv/hobgoblin: add Xilinx Ethernet Lite MAC
 
 Co-authored-by: Stuart Menefy <stuart.menefy@codasip.com>
 Signed-off-by: Axel Heider <axel.heider@codasip.com>

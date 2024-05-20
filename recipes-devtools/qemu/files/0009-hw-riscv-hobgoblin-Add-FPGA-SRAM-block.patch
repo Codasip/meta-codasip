@@ -1,7 +1,7 @@
-From c18733a6eedbd020e009f563a17bf8263574f9a9 Mon Sep 17 00:00:00 2001
+From b4ef80647eff0d19d587d03bda1566d5ceeeb9c0 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Tue, 23 Jan 2024 17:31:16 +0000
-Subject: [PATCH 09/15] hw/riscv/hobgoblin: Add FPGA SRAM block
+Subject: [PATCH 09/17] hw/riscv/hobgoblin: Add FPGA SRAM block
 
 The Hobgoblin platform has an SRAM block internal to the FPGA.
 

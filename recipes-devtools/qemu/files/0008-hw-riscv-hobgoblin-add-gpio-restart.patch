@@ -1,7 +1,7 @@
-From f27595749e1bfb06fee608252c3f53a7965cd92b Mon Sep 17 00:00:00 2001
+From 9ee99350bcb577a642021d440f79ab1cecb1d87f Mon Sep 17 00:00:00 2001
 From: Axel Heider <axel.heider@codasip.com>
 Date: Tue, 19 Mar 2024 15:57:16 +0000
-Subject: [PATCH 08/15] hw/riscv/hobgoblin: add gpio-restart
+Subject: [PATCH 08/17] hw/riscv/hobgoblin: add gpio-restart
 
 Co-authored-by: Samuel Obuch <samuel.obuch@codasip.com>
 Signed-off-by: Axel Heider <axel.heider@codasip.com>

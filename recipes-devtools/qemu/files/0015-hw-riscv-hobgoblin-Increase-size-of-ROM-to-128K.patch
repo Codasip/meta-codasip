@@ -1,7 +1,7 @@
-From 90388586dcf2a0a0afc36d4303fd3247efa25c0f Mon Sep 17 00:00:00 2001
+From c430375ed1c0d355ee0d99979b1b3e5483117095 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Thu, 16 May 2024 11:30:57 +0100
-Subject: [PATCH 15/15] hw/riscv/hobgoblin: Increase size of ROM to 128K
+Subject: [PATCH 15/17] hw/riscv/hobgoblin: Increase size of ROM to 128K
 
 Increase to match the Genesys 2 FPGA platform.
 

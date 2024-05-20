@@ -1,7 +1,7 @@
-From c272f2ab41081cb6fa6fcc67701835aa611a35b4 Mon Sep 17 00:00:00 2001
+From e85afa2f0bb939d9e95557b78046496ed7b1b484 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Wed, 15 May 2024 16:48:50 +0100
-Subject: [PATCH 12/15] hw/riscv/hobgoblin: Add virtio blocks
+Subject: [PATCH 12/17] hw/riscv/hobgoblin: Add virtio blocks
 
 Add four virtio blocks so that various virtual IO devices can be
 added.

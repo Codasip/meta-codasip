@@ -1,7 +1,7 @@
-From ffbd3ee9de02f9238547fce73a750064bcfffd4f Mon Sep 17 00:00:00 2001
+From a72a97778f8e60558e1012803759c4ffb59702ba Mon Sep 17 00:00:00 2001
 From: Axel Heider <axel.heider@codasip.com>
 Date: Tue, 19 Mar 2024 15:34:19 +0000
-Subject: [PATCH 05/15] target/cpu: Add Codasip A730 CPU
+Subject: [PATCH 05/17] target/cpu: Add Codasip A730 CPU
 
 - List all extensions from A730 manual
 - Enable what QEMU supports
@@ -11,9 +11,9 @@ Co-authored-by: Stuart Menefy <stuart.menefy@codasip.com>
 Signed-off-by: Axel Heider <axel.heider@codasip.com>
 ---
  target/riscv/cpu-qom.h      |  1 +
- target/riscv/cpu.c          | 56 +++++++++++++++++++++++++++++++++++++
+ target/riscv/cpu.c          | 58 +++++++++++++++++++++++++++++++++++++
  target/riscv/cpu_vendorid.h |  3 ++
- 3 files changed, 60 insertions(+)
+ 3 files changed, 62 insertions(+)
 
 diff --git a/target/riscv/cpu-qom.h b/target/riscv/cpu-qom.h
 index 91b3361dec..3b45b58c9f 100644
@@ -28,10 +28,10 @@ index 91b3361dec..3b45b58c9f 100644
  
  OBJECT_DECLARE_CPU_TYPE(RISCVCPU, RISCVCPUClass, RISCV_CPU)
 diff --git a/target/riscv/cpu.c b/target/riscv/cpu.c
-index 83c7c0cf07..8d7902c21f 100644
+index 83c7c0cf07..4a312d3bde 100644
 --- a/target/riscv/cpu.c
 +++ b/target/riscv/cpu.c
-@@ -535,6 +535,61 @@ static void rv64_veyron_v1_cpu_init(Object *obj)
+@@ -535,6 +535,63 @@ static void rv64_veyron_v1_cpu_init(Object *obj)
  #endif
  }
  
@@ -51,7 +51,9 @@ index 83c7c0cf07..8d7902c21f 100644
 +
 +    /* MMU related extensions */
 +    cpu->cfg.mmu = true;
++#ifndef CONFIG_USER_ONLY
 +    set_satp_mode_max_supported(cpu, VM_1_10_SV39);
++#endif
 +    /* Svbare */
 +    /* Svade */
 +
@@ -93,7 +95,7 @@ index 83c7c0cf07..8d7902c21f 100644
  static void rv128_base_cpu_init(Object *obj)
  {
      if (qemu_tcg_mttcg_enabled()) {
-@@ -1810,6 +1865,7 @@ static const TypeInfo riscv_cpu_type_infos[] = {
+@@ -1810,6 +1867,7 @@ static const TypeInfo riscv_cpu_type_infos[] = {
      DEFINE_CPU(TYPE_RISCV_CPU_SHAKTI_C,         rv64_sifive_u_cpu_init),
      DEFINE_CPU(TYPE_RISCV_CPU_THEAD_C906,       rv64_thead_c906_cpu_init),
      DEFINE_CPU(TYPE_RISCV_CPU_VEYRON_V1,        rv64_veyron_v1_cpu_init),
