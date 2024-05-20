@@ -19,11 +19,13 @@ IMAGE_INSTALL = "\
     packagegroup-core-tools-debug \
     e2fsprogs-resize2fs \
     e2fsprogs-tune2fs \
+    kbd \
     ${CORE_IMAGE_EXTRA_INSTALL} \
 "
 
 # From meta-openembedded
 IMAGE_INSTALL += "\
+    evtest \
     libgpiod \
     iperf3 \
     mdio-tools \
