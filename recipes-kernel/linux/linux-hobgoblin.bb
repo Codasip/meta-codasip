@@ -39,6 +39,7 @@ SRC_URI = " \
     file://0013-riscv-Fix-linear-mapping-checks-for-non-contiguous-m.patch \
     file://0014-riscv-Remove-redundant-restriction-on-memory-size.patch \
     file://0015-riscv-configs-hobgoblin-Convert-isa-detection-to-new.patch \
+    file://0016-riscv-hobgoblin-Xilinx-Axi-Ethernet-support.patch \
     file://defconfig \
 "
 
