@@ -1,7 +1,7 @@
-From a58a83e9d9423a08650b1336d48c7392c86ff026 Mon Sep 17 00:00:00 2001
+From 37b00de901248bb0d7bc915f14e10a5c7589fb45 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Fri, 22 Mar 2024 11:29:04 +0000
-Subject: [PATCH 13/17] hw/intc: sifive_plic: Add edge detection for level
+Subject: [PATCH 13/19] hw/intc: sifive_plic: Add edge detection for level
  interrupts
 
 The RISC-V PLIC spec allows for both edge and level sensitive interrupts,
@@ -85,5 +85,5 @@ index d79b70e602..96a03f0265 100644
      uint32_t *target_priority;
      uint32_t *pending;
 -- 
-2.39.3
+2.43.0
 

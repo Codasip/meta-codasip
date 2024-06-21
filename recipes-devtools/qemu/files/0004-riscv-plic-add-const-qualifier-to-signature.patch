@@ -1,7 +1,7 @@
 From f2aa95dd71a24e74f8d15a50587b25f55a3b3378 Mon Sep 17 00:00:00 2001
 From: Axel Heider <axel.heider@codasip.com>
 Date: Wed, 20 Mar 2024 09:31:40 +0000
-Subject: [PATCH 04/17] riscv/plic: add const qualifier to signature
+Subject: [PATCH 04/19] riscv/plic: add const qualifier to signature
 
 Signed-off-by: Axel Heider <axel.heider@codasip.com>
 ---
@@ -36,5 +36,5 @@ index d3f45ec248..d79b70e602 100644
      uint32_t hartid_base, uint32_t num_sources,
      uint32_t num_priorities, uint32_t priority_base,
 -- 
-2.39.3
+2.43.0
 

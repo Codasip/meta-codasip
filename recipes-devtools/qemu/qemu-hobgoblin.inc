@@ -31,6 +31,8 @@ SRC_URI = " \
     file://0015-hw-riscv-hobgoblin-Increase-size-of-ROM-to-128K.patch \
     file://0016-hw-riscv-hobgoblin-Add-support-for-Xilinx-AXI-Ethern.patch \
     file://0017-target-riscv-Fix-pmu_mask-and-pmp-default-for-Codasi.patch \
+    file://0018-hw-riscv-hobgoblin-add-Codasip-Timer.patch \
+    file://0019-hw-riscv-hobgoblin-Add-support-for-Codasip-timer.patch \
     file://fixedmeson.patch \
     file://powerpc_rom.bin \
     file://qemu-guest-agent.init \

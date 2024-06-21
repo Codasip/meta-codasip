@@ -1,7 +1,7 @@
-From ac615438b6287026206276ab90544b9e95388c00 Mon Sep 17 00:00:00 2001
+From 6c3139de7fda44af92d5710eb6da3c09fb521b0d Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Wed, 15 May 2024 18:24:40 +0100
-Subject: [PATCH 14/17] hw/riscv/hobgoblin: Add support for proFPGA platform
+Subject: [PATCH 14/19] hw/riscv/hobgoblin: Add support for proFPGA platform
 
 Currently two versions of the Hobgoblin platform are supported, the
 original one using the Genesys 2 hardware, and now the proFPGA. Add an
@@ -15,7 +15,7 @@ Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
  2 files changed, 58 insertions(+), 1 deletion(-)
 
 diff --git a/hw/riscv/hobgoblin.c b/hw/riscv/hobgoblin.c
-index f54d3cb895..55a3c7de2f 100644
+index 366c7b2ef7..0be5120225 100644
 --- a/hw/riscv/hobgoblin.c
 +++ b/hw/riscv/hobgoblin.c
 @@ -89,6 +89,11 @@ static const memmapEntry_t memmap[] = {
@@ -102,7 +102,7 @@ index f54d3cb895..55a3c7de2f 100644
  
  /* QOM support for HobgoblinState_t */
 diff --git a/include/hw/riscv/hobgoblin.h b/include/hw/riscv/hobgoblin.h
-index fd504d9619..7feb4db009 100644
+index b98a0e1f7b..601a5c7afd 100644
 --- a/include/hw/riscv/hobgoblin.h
 +++ b/include/hw/riscv/hobgoblin.h
 @@ -25,11 +25,17 @@
@@ -124,5 +124,5 @@ index fd504d9619..7feb4db009 100644
      RISCVHartArrayState soc;
      DeviceState *plic;
 -- 
-2.39.3
+2.43.0
 

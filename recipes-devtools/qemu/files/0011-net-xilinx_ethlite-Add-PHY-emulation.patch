@@ -1,7 +1,7 @@
-From 49667682bd5b29776fd68b722e83af1368e997b9 Mon Sep 17 00:00:00 2001
+From c518f3e1402674dd051ff0184e85fc7bdfff1f15 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Thu, 21 Mar 2024 16:11:21 +0000
-Subject: [PATCH 11/17] net: xilinx_ethlite: Add PHY emulation
+Subject: [PATCH 11/19] net: xilinx_ethlite: Add PHY emulation
 
 Add code to emulate the MDIO_... registers and communicate with a PHY.
 Copy the exiting PHY code from the xilinx_axienet.c, although keep
@@ -283,5 +283,5 @@ index 0000000000..d6a9dc0dc3
 +}
 +
 -- 
-2.39.3
+2.43.0
 

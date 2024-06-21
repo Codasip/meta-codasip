@@ -1,7 +1,7 @@
-From dc37a8420816ad43b9c91d75aafcfc99d2cd78f8 Mon Sep 17 00:00:00 2001
+From 98f33ae4fa1f2cd175a60cac98334f4649716ff1 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Mon, 20 May 2024 16:15:52 +0100
-Subject: [PATCH 17/17] target/riscv: Fix pmu_mask and pmp default for Codasip
+Subject: [PATCH 17/19] target/riscv: Fix pmu_mask and pmp default for Codasip
  A730
 
 Values set in the ..._cpu_init() functions for the CPU configuration,
@@ -9,6 +9,8 @@ which can also be set via properties, will be overridden when the
 CPU is realised and properties assigned. If we want to change
 the default values, it is necessary to change the default values
 in the properties.
+
+Signed-off-by: Stuart Menefy <stuart.menefy@codasip.com>
 ---
  target/riscv/cpu.c | 11 +++++++++++
  1 file changed, 11 insertions(+)
@@ -36,5 +38,5 @@ index 4a312d3bde..24e8f3f8f9 100644
  
  static void rv128_base_cpu_init(Object *obj)
 -- 
-2.39.3
+2.43.0
 

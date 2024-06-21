@@ -1,7 +1,7 @@
-From e85afa2f0bb939d9e95557b78046496ed7b1b484 Mon Sep 17 00:00:00 2001
+From c3bde7f5ac162a075ebf6c5d412aaf5c0e942493 Mon Sep 17 00:00:00 2001
 From: Stuart Menefy <stuart.menefy@codasip.com>
 Date: Wed, 15 May 2024 16:48:50 +0100
-Subject: [PATCH 12/17] hw/riscv/hobgoblin: Add virtio blocks
+Subject: [PATCH 12/19] hw/riscv/hobgoblin: Add virtio blocks
 
 Add four virtio blocks so that various virtual IO devices can be
 added.
@@ -10,11 +10,11 @@ Co-authored-by: Stuart Menefy <stuart.menefy@codasip.com>
 Signed-off-by: Axel Heider <axel.heider@codasip.com>
 ---
  hw/riscv/hobgoblin.c         | 15 +++++++++++++++
- include/hw/riscv/hobgoblin.h |  4 ++++
- 2 files changed, 19 insertions(+)
+ include/hw/riscv/hobgoblin.h |  5 +++++
+ 2 files changed, 20 insertions(+)
 
 diff --git a/hw/riscv/hobgoblin.c b/hw/riscv/hobgoblin.c
-index 4982799f43..f54d3cb895 100644
+index 07b264ef17..366c7b2ef7 100644
 --- a/hw/riscv/hobgoblin.c
 +++ b/hw/riscv/hobgoblin.c
 @@ -83,6 +83,8 @@ static const memmapEntry_t memmap[] = {
@@ -38,7 +38,7 @@ index 4982799f43..f54d3cb895 100644
 +        hwaddr offset = 0x200 * i;
 +        assert(offset < mem_virtio->size);
 +        hwaddr base = mem_virtio->base + offset;
-+        qemu_irq irq = hobgoblin_make_plic_irq(s, HOBGOBLIN_VIRTIO_IRQ + i);
++        qemu_irq irq = hobgoblin_make_plic_irq(s, HOBGOBLIN_VIRTIO0_IRQ + i);
 +        sysbus_create_simple("virtio-mmio", base, irq);
 +    }
 +}
@@ -54,7 +54,7 @@ index 4982799f43..f54d3cb895 100644
      /* load images into memory to boot the platform */
      int ret = hobgoblin_load_images(machine, s);
 diff --git a/include/hw/riscv/hobgoblin.h b/include/hw/riscv/hobgoblin.h
-index b82f6142f3..fd504d9619 100644
+index b82f6142f3..b98a0e1f7b 100644
 --- a/include/hw/riscv/hobgoblin.h
 +++ b/include/hw/riscv/hobgoblin.h
 @@ -53,9 +53,12 @@ enum {
@@ -70,14 +70,15 @@ index b82f6142f3..fd504d9619 100644
  enum {
      /* Interrupt 0 is reserved */
      HOBGOBLIN_UART0_IRQ    = 1,
-@@ -63,6 +66,7 @@ enum {
+@@ -63,6 +66,8 @@ enum {
      HOBGOBLIN_GPIO0_IRQ    = 7,
      HOBGOBLIN_GPIO1_IRQ    = 8,
      HOBGOBLIN_ETH_IRQ      = 15,
-+    HOBGOBLIN_VIRTIO_IRQ = 28, /* to 31 */
++    HOBGOBLIN_VIRTIO0_IRQ  = 28,
++    HOBGOBLIN_VIRTIO3_IRQ  = 31,
      /* ----------- */
      HOBGOBLIN_MAX_IRQ
  };
 -- 
-2.39.3
+2.43.0
 

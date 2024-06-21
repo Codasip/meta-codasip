@@ -1,7 +1,7 @@
 From a72a97778f8e60558e1012803759c4ffb59702ba Mon Sep 17 00:00:00 2001
 From: Axel Heider <axel.heider@codasip.com>
 Date: Tue, 19 Mar 2024 15:34:19 +0000
-Subject: [PATCH 05/17] target/cpu: Add Codasip A730 CPU
+Subject: [PATCH 05/19] target/cpu: Add Codasip A730 CPU
 
 - List all extensions from A730 manual
 - Enable what QEMU supports
@@ -116,5 +116,5 @@ index 96b6b9c2cb..34ac57d8c7 100644
 +
  #endif /*  TARGET_RISCV_CPU_VENDORID_H */
 -- 
-2.39.3
+2.43.0
 
