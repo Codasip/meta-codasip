@@ -1,6 +1,6 @@
 # short-description: Create SD card image for the Codasip Hobgoblin FPGA platform
 
-part /boot --source bootimg-partition --ondisk mmcblk0 --fstype=vfat --label boot --active --size=100M --align 4096
+part /boot --source bootimg-codasip --ondisk mmcblk0 --fstype=vfat --label boot --active --size=100M --align 4096
 part / --source rootfs --ondisk mmcblk0 --fstype=ext4 --label root --size=64M --align 4096
 
 bootloader --ptable msdos

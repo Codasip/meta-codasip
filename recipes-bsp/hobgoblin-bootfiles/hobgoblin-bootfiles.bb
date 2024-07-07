@@ -14,13 +14,11 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 S = "${WORKDIR}"
 
 SRC_URI = " \
-	file://config.txt \
 	file://LICENSE \
 	${@bb.utils.contains('BBMULTICONFIG', 'baremetal', '', 'file://fsbl_rom.xexe', d)} \
 "
 
 do_deploy() {
-	cp ${WORKDIR}/config.txt ${DEPLOYDIR}/
 	fsbldir="${@bb.utils.contains('BBMULTICONFIG', 'baremetal', '${BAREMETAL_DEPLOY_DIR}', '${WORKDIR}', d)}"
 	cp $fsbldir/fsbl_rom.xexe ${DEPLOYDIR}/
 }

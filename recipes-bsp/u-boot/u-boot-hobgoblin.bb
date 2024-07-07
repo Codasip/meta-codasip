@@ -30,21 +30,16 @@ SRC_URI += " \
     file://0010-board-codasip-Switch-to-distro_bootcmd.patch \
     file://0011-board-codasip-Remove-support-for-EFI.patch \
     file://0012-configs-codasip-a70x-hobgoblin-add-reset-support.patch \
-    file://boot.scr \
+    file://0013-configs-codasip-a70x-hobgoblin-secure-boot.patch \
+    file://boot-mmc.scr.pp \
 "
-DEPENDS:append = " u-boot-tools-native"
 
 COMPATIBLE_MACHINE = "hobgoblin"
 
 TOOLCHAIN = "gcc"
 
-do_configure:prepend () {
-    mkimage -O linux -T script -C none -n "U-Boot boot script" \
-	    -d ${WORKDIR}/boot.scr ${WORKDIR}/boot.scr.uimg
-}
-
 do_deploy:append() {
-    install -m 644 ${WORKDIR}/boot.scr.uimg ${DEPLOYDIR}/
+    install -m 644 ${WORKDIR}/boot-mmc.scr.pp ${DEPLOYDIR}/
 }
 
 # U-boot sets O=... which needs it to build outside of S
