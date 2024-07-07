@@ -15,31 +15,11 @@ FILESEXTRAPATHS =. "${FILE_DIRNAME}/files:"
 
 KERNEL_VERSION_SANITY_SKIP = "1"
 
-# We use the revision in order to avoid having to fetch it from the
-# repo during parse
-# This corresponds to tag: v6.8.9
-SRCREV = "f3d61438b613b87afb63118bea6fb18c50ba7a6b"
-
-PV = "6.5+git"
+SRCREV = "${AUTOREV}"
+PV = "6.5+git${SRCPV}"
 
 SRC_URI = " \
-    git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git;branch=linux-6.8.y \
-    file://0001-riscv-Add-the-Codasip-SoC-family-Kconfig-option.patch \
-    file://0002-riscv-dts-codasip-Add-Hobgoblin-device-tree.patch \
-    file://0003-riscv-dts-Add-codasip-devicetree.patch \
-    file://0004-riscv-configs-hobgoblin-Add-a-Codasip-Hobgoblin-conf.patch \
-    file://0005-riscv-dts-codasip-Add-Hobgoblin-qemu-support.patch \
-    file://0006-riscv-configs-hobgoblin-Add-LED-and-GPIO-devices.patch \
-    file://0007-riscv-hobgoblin-add-configuration-for-gpio-restart.patch \
-    file://0008-riscv-hobgoblin-Xilinx-EthernetLite-support.patch \
-    file://0009-riscv-hobgoblin-Enable-syn-cookies.patch \
-    file://0010-net-emaclite-Use-xemaclite_-readl-writel-to-access-p.patch \
-    file://0011-net-emaclite-Fix-xemaclite_aligned_read-of-trailing-.patch \
-    file://0012-riscv-configs-hobgoblin-Enable-NFS-support.patch \
-    file://0013-riscv-Fix-linear-mapping-checks-for-non-contiguous-m.patch \
-    file://0014-riscv-Remove-redundant-restriction-on-memory-size.patch \
-    file://0015-riscv-configs-hobgoblin-Convert-isa-detection-to-new.patch \
-    file://0016-riscv-hobgoblin-Xilinx-Axi-Ethernet-support.patch \
+    git://${CODASIP_GIT_CHERILINUX_REPO}/linux.git;protocol=${CODASIP_GIT_PROTOCOL};branch=${CODASIP_GIT_BRANCH} \
     file://defconfig \
 "
 
@@ -47,6 +27,8 @@ LINUX_VERSION ?= "6.5.0"
 LINUX_VERSION_EXTENSION:append = "-hobgoblin"
 
 KCONFIG_MODE="--alldefconfig"
+
+KBUILD_DEFCONFIG = "codasip-a70x-hobgoblin_defconfig"
 
 COMPATIBLE_MACHINE = "(hobgoblin)"
 
