@@ -20,7 +20,6 @@ PV = "6.5+git${SRCPV}"
 
 SRC_URI = " \
     git://${CODASIP_GIT_CHERILINUX_REPO}/linux.git;protocol=${CODASIP_GIT_PROTOCOL};branch=${CODASIP_GIT_BRANCH} \
-    file://defconfig \
 "
 
 LINUX_VERSION ?= "6.5.0"
